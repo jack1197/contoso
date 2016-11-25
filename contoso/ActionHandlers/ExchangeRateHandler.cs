@@ -62,8 +62,5 @@ namespace contoso.ActionHandlers
             Activity reply = message.CreateReply(string.Format("Current exchange rate from {0} to {1} is: {2:f4}", sourceRate.ToUpper(), destinationRate.ToUpper(), ExchangeResponse.rates[destinationRate]));
             return reply;
         }
-
-
-        
     }
 }
