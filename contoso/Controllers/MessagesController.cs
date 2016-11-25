@@ -19,30 +19,66 @@ namespace contoso
         /// </summary>
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
-            if (activity.Type == ActivityTypes.Message)
-            {
-                ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
-                // calculate something for us to return
-                int length = (activity.Text ?? string.Empty).Length;
+            //Create reply in seperate task, so 200 OK is sent immediately (acknowledging message),
+            //but the reply can be delayed, e.g. with slow API calls
+            Task.Run(() => HandleActivity(activity));
 
-                // return our reply to the user
-                Activity reply = activity.CreateReply($"You sent {activity.Text} which was {length} characters");
-                await connector.Conversations.ReplyToActivityAsync(reply);
-            }
-            else
-            {
-                HandleSystemMessage(activity);
-            }
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
         }
 
-        private Activity HandleSystemMessage(Activity message)
+
+        private async Task HandleActivity(Activity activity)
+        {
+            if (activity.Type == ActivityTypes.Message)
+            {
+                await ReplyToActivity(activity, await UserMessageResponse(activity));
+            }
+            else
+            {
+                await ReplyToActivity(activity, await SystemMessageResponse(activity));
+            }
+        }
+
+
+        private async Task ReplyToActivity(Activity activity, Activity reply)
+        {
+            // return our reply to the user
+            if (reply != null)
+            {
+                
+                ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
+                await connector.Conversations.ReplyToActivityAsync(reply);
+            }
+        }
+
+
+        private async Task<Activity> UserMessageResponse(Activity message)
+        {
+            Activity reply = message.CreateReply($"Unimplemented");
+            return reply;
+        }
+
+
+        private async Task<Activity> DeleteDataResponse(Activity message)
+        {
+            await DeleteData(message);
+            return message.CreateReply("User data deleted!");
+        }
+
+
+        private async Task DeleteData(Activity message)
+        {
+            StateClient stateClient = message.GetStateClient();
+            await stateClient.BotState.DeleteStateForUserAsync(message.ChannelId, message.From.Id);
+        }
+
+
+        private async Task<Activity> SystemMessageResponse(Activity message)
         {
             if (message.Type == ActivityTypes.DeleteUserData)
             {
-                // Implement user deletion here
-                // If we handle user deletion, return a real message
+                await DeleteData(message);
             }
             else if (message.Type == ActivityTypes.ConversationUpdate)
             {
