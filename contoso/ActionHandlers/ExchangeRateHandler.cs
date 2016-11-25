@@ -20,7 +20,7 @@ namespace contoso.ActionHandlers
             public Dictionary<string, double> rates { get; set; }
         }   
 
-        static async Task<Activity> ExchangeRateReply(Activity message, string destinationRate, string sourceRate = "NZD")
+        public static async Task<Activity> ExchangeRateReply(Activity message, string destinationRate, string sourceRate = "NZD")
         {
             HttpClient client = new HttpClient();
             HttpResponseMessage response = await client.GetAsync(string.Format(APIURL, Uri.EscapeDataString(sourceRate)));

@@ -7,6 +7,8 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
+using contoso.LUIS;
+using contoso.ActionHandlers;
 
 namespace contoso
 {
@@ -55,8 +57,15 @@ namespace contoso
 
         private async Task<Activity> UserMessageResponse(Activity message)
         {
-            Activity reply = message.CreateReply($"Unimplemented");
-            return reply;
+            LUISHandler.LUISQueryResult LUISResult = await LUISHandler.HandleQuery(message.Text);
+            if (LUISResult.responseType == LUISHandler.ResponseType.ExchangeRate)
+            {
+                if (!LUISResult.parameters.ContainsKey("SourceRate"))
+                    await ExchangeRateHandler.ExchangeRateReply(message, LUISResult.parameters["DestinationRate"]);
+                else
+                    await ExchangeRateHandler.ExchangeRateReply(message, LUISResult.parameters["DestinationRate"], LUISResult.parameters["SourceRate"]);
+            }
+            return message.CreateReply("Unimplemented");
         }
 
 
