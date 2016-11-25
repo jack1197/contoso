@@ -1,0 +1,593 @@
+{
+  "luis_schema_version": "1.3.0",
+  "name": "BankBot",
+  "desc": "For MSA assignment",
+  "culture": "en-us",
+  "intents": [
+    {
+      "name": "AccountBalance"
+    },
+    {
+      "name": "ExchangeRate"
+    },
+    {
+      "name": "Logout"
+    },
+    {
+      "name": "MakePayment"
+    },
+    {
+      "name": "None"
+    },
+    {
+      "name": "TransactionHistory"
+    }
+  ],
+  "entities": [
+    {
+      "name": "AccountNumber"
+    },
+    {
+      "name": "DestinationRate"
+    },
+    {
+      "name": "SourceRate"
+    }
+  ],
+  "composites": [],
+  "bing_entities": [
+    "money"
+  ],
+  "actions": [
+    {
+      "actionName": "ExchangeRate",
+      "intentName": "ExchangeRate",
+      "channel": null,
+      "actionParameters": [
+        {
+          "parameterName": "Source",
+          "entityName": "SourceRate",
+          "required": false,
+          "question": "",
+          "phraseListFeatureName": "CurrencyCodes"
+        },
+        {
+          "parameterName": "Destination",
+          "entityName": "DestinationRate",
+          "required": true,
+          "question": "Please enter an currency code",
+          "phraseListFeatureName": "CurrencyCodes"
+        }
+      ]
+    }
+  ],
+  "model_features": [
+    {
+      "name": "statement",
+      "mode": false,
+      "words": "statement,bank statement,transactions,history,payments,payed,paid,recently",
+      "activated": true
+    },
+    {
+      "name": "CurrencyCodes",
+      "mode": true,
+      "words": "AUD,BGN,BRL,CAD,CHF,CNY,CZK,DKK,GBP,HKD,HRK,HUF,IDR,ILS,INR,JPY,KRW,MXN,MYR,NOK,PHP,PLN,RON,RUB,SEK,SGD,THB,TRY,USD,ZAR,EUR",
+      "activated": true
+    }
+  ],
+  "regex_features": [
+    {
+      "name": "AccNum",
+      "pattern": "\\d{2} *-? *\\d{4} *-? *\\d{7} *-? *\\d{2,3}",
+      "activated": true
+    }
+  ],
+  "utterances": [
+    {
+      "text": "make a payment of $70.00 to the account 12-1234-1234567-123",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "AccountNumber",
+          "startPos": 11,
+          "endPos": 17
+        }
+      ]
+    },
+    {
+      "text": "pay 20.00 dollars to 98-9876-9876543-32",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "AccountNumber",
+          "startPos": 6,
+          "endPos": 12
+        }
+      ]
+    },
+    {
+      "text": "make a payment of $2.00 to 12-1234-1234567-123",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "AccountNumber",
+          "startPos": 9,
+          "endPos": 15
+        }
+      ]
+    },
+    {
+      "text": "how much money",
+      "intent": "AccountBalance",
+      "entities": []
+    },
+    {
+      "text": "account balance",
+      "intent": "AccountBalance",
+      "entities": []
+    },
+    {
+      "text": "what is my balance",
+      "intent": "AccountBalance",
+      "entities": []
+    },
+    {
+      "text": "pay 20 . 00 dollars to 98 - 9876 - 9876543 - 32",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "AccountNumber",
+          "startPos": 6,
+          "endPos": 12
+        }
+      ]
+    },
+    {
+      "text": "send 40.00 dollars to the account 12-1234-1234567-123",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "AccountNumber",
+          "startPos": 8,
+          "endPos": 14
+        }
+      ]
+    },
+    {
+      "text": "send $50.00 to 123456-1234567-12",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "AccountNumber",
+          "startPos": 6,
+          "endPos": 10
+        }
+      ]
+    },
+    {
+      "text": "send 12-1234-1234567-12 $50",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "AccountNumber",
+          "startPos": 1,
+          "endPos": 7
+        }
+      ]
+    },
+    {
+      "text": "pay 70 dollars to 85-4751-7845785-547",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "AccountNumber",
+          "startPos": 4,
+          "endPos": 10
+        }
+      ]
+    },
+    {
+      "text": "give $5 to 123456-1234567-123",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "AccountNumber",
+          "startPos": 4,
+          "endPos": 8
+        }
+      ]
+    },
+    {
+      "text": "show me my bank statement",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "show me my transactions",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "bank statement",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "whats my history",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "show me my statement",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "exit",
+      "intent": "Logout",
+      "entities": []
+    },
+    {
+      "text": "leave",
+      "intent": "Logout",
+      "entities": []
+    },
+    {
+      "text": "im going now",
+      "intent": "Logout",
+      "entities": []
+    },
+    {
+      "text": "see you later",
+      "intent": "Logout",
+      "entities": []
+    },
+    {
+      "text": "quit",
+      "intent": "Logout",
+      "entities": []
+    },
+    {
+      "text": "goodbye, nice to talk to you",
+      "intent": "Logout",
+      "entities": []
+    },
+    {
+      "text": "you're a moron",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "whats the weather",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "hey whats up",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "im a person",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "who is phone?",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "how is your mum",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "that makes sense",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "whats my balance",
+      "intent": "AccountBalance",
+      "entities": []
+    },
+    {
+      "text": "give me an account statement",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "whats my account information",
+      "intent": "AccountBalance",
+      "entities": []
+    },
+    {
+      "text": "give me my account info",
+      "intent": "AccountBalance",
+      "entities": []
+    },
+    {
+      "text": "nice knowing you",
+      "intent": "Logout",
+      "entities": []
+    },
+    {
+      "text": "see ya later",
+      "intent": "Logout",
+      "entities": []
+    },
+    {
+      "text": "who have i paid recently?",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "what are my recent payments",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "have i payed anyone recently?",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "who have i paid recently",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "convert usd to nzd",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "SourceRate",
+          "startPos": 1,
+          "endPos": 1
+        },
+        {
+          "entity": "DestinationRate",
+          "startPos": 3,
+          "endPos": 3
+        }
+      ]
+    },
+    {
+      "text": "rate of usd",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "DestinationRate",
+          "startPos": 2,
+          "endPos": 2
+        }
+      ]
+    },
+    {
+      "text": "exchange rate of aud",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "DestinationRate",
+          "startPos": 3,
+          "endPos": 3
+        }
+      ]
+    },
+    {
+      "text": "convert usd into cny",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "SourceRate",
+          "startPos": 1,
+          "endPos": 1
+        },
+        {
+          "entity": "DestinationRate",
+          "startPos": 3,
+          "endPos": 3
+        }
+      ]
+    },
+    {
+      "text": "what is the exchange rate of rub",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "DestinationRate",
+          "startPos": 6,
+          "endPos": 6
+        }
+      ]
+    },
+    {
+      "text": "exchange rate from usd to nzd",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "SourceRate",
+          "startPos": 3,
+          "endPos": 3
+        },
+        {
+          "entity": "DestinationRate",
+          "startPos": 5,
+          "endPos": 5
+        }
+      ]
+    },
+    {
+      "text": "rate to usd from nzd",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "SourceRate",
+          "startPos": 2,
+          "endPos": 2
+        },
+        {
+          "entity": "DestinationRate",
+          "startPos": 4,
+          "endPos": 4
+        }
+      ]
+    },
+    {
+      "text": "convert rub to nzd",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "SourceRate",
+          "startPos": 1,
+          "endPos": 1
+        },
+        {
+          "entity": "DestinationRate",
+          "startPos": 3,
+          "endPos": 3
+        }
+      ]
+    },
+    {
+      "text": "rub me",
+      "intent": "None",
+      "entities": [
+        {
+          "entity": "DestinationRate",
+          "startPos": 0,
+          "endPos": 0
+        }
+      ]
+    },
+    {
+      "text": "europeans are cool",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "try to be nice",
+      "intent": "None",
+      "entities": [
+        {
+          "entity": "SourceRate",
+          "startPos": 0,
+          "endPos": 0
+        },
+        {
+          "entity": "DestinationRate",
+          "startPos": 2,
+          "endPos": 2
+        }
+      ]
+    },
+    {
+      "text": "try to rub me",
+      "intent": "None",
+      "entities": [
+        {
+          "entity": "SourceRate",
+          "startPos": 0,
+          "endPos": 0
+        },
+        {
+          "entity": "DestinationRate",
+          "startPos": 2,
+          "endPos": 2
+        }
+      ]
+    },
+    {
+      "text": "try to rub",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "SourceRate",
+          "startPos": 0,
+          "endPos": 0
+        },
+        {
+          "entity": "DestinationRate",
+          "startPos": 2,
+          "endPos": 2
+        }
+      ]
+    },
+    {
+      "text": "rub to try",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "SourceRate",
+          "startPos": 0,
+          "endPos": 0
+        },
+        {
+          "entity": "DestinationRate",
+          "startPos": 2,
+          "endPos": 2
+        }
+      ]
+    },
+    {
+      "text": "aud to gbp",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "SourceRate",
+          "startPos": 0,
+          "endPos": 0
+        },
+        {
+          "entity": "DestinationRate",
+          "startPos": 2,
+          "endPos": 2
+        }
+      ]
+    },
+    {
+      "text": "nok to hkd",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "SourceRate",
+          "startPos": 0,
+          "endPos": 0
+        },
+        {
+          "entity": "DestinationRate",
+          "startPos": 2,
+          "endPos": 2
+        }
+      ]
+    },
+    {
+      "text": "rate of rub",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "DestinationRate",
+          "startPos": 2,
+          "endPos": 2
+        }
+      ]
+    },
+    {
+      "text": "what is the current exchange rate of try",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "DestinationRate",
+          "startPos": 7,
+          "endPos": 7
+        }
+      ]
+    },
+    {
+      "text": "hey, whatsup",
+      "intent": "None",
+      "entities": []
+    }
+  ]
+}
