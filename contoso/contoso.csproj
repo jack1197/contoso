@@ -118,11 +118,14 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActionHandlers\ExchangeRateHandler.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
+    <Compile Include="DataModels\LUISResponse.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="LUIS\LUISHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
