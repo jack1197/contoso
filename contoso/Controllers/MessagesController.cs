@@ -60,10 +60,7 @@ namespace contoso
             LUISHandler.LUISQueryResult LUISResult = await LUISHandler.HandleQuery(message.Text);
             if (LUISResult.responseType == LUISHandler.ResponseType.ExchangeRate)
             {
-                if (!LUISResult.parameters.ContainsKey("SourceRate"))
-                    await ExchangeRateHandler.ExchangeRateReply(message, LUISResult.parameters["DestinationRate"]);
-                else
-                    await ExchangeRateHandler.ExchangeRateReply(message, LUISResult.parameters["DestinationRate"], LUISResult.parameters["SourceRate"]);
+                return await ExchangeRateHandler.HandleExchangeRateMessage(message, LUISResult);
             }
             return message.CreateReply("Unimplemented");
         }
