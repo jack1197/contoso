@@ -30,7 +30,6 @@ namespace contoso
 
         private async Task HandleActivity(Activity activity)
         {
-            await CheckGUID(activity);
             if (activity.Type == ActivityTypes.Message)
             {
                 await ReplyToActivity(activity, await UserMessageResponse(activity));
@@ -54,31 +53,18 @@ namespace contoso
                 case LUISHandler.ResponseType.ExchangeRate:
                     return await ExchangeRateHandler.HandleExchangeRateMessage(message, LUISResult);
                 case LUISHandler.ResponseType.Logout:
-                    return await DeleteDataResponse(message);
-            }
-            return message.CreateReply("Unimplemented");
-        }
-
-
-
-
-
-
-
-
-
-
-        private async Task CheckGUID(Activity activity)
-        {
-            StateClient stateClient = activity.GetStateClient();
-            BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.From.Id);
-            if ((userData.GetProperty<string>("GUID") ?? "") == "")
-            {
-                userData.SetProperty<string>("GUID", Guid.NewGuid().ToString());
-                userData.SetProperty<bool>("Authorised", false);
-                await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
+                    return await FacebookController.LogoutHandler(message);
+                default:
+                    return message.CreateReply("Unimplemented");
             }
         }
+
+
+
+
+
+
+
 
 
         private async Task ReplyToActivity(Activity activity, Activity reply)
@@ -92,25 +78,11 @@ namespace contoso
         }
 
 
-        private async Task<Activity> DeleteDataResponse(Activity message)
-        {
-            await DeleteData(message);
-            return message.CreateReply("User logged out");
-        }
-
-
-        private async Task DeleteData(Activity message)
-        {
-            StateClient stateClient = message.GetStateClient();
-            await stateClient.BotState.DeleteStateForUserAsync(message.ChannelId, message.From.Id);
-        }
-
-
         private async Task<Activity> SystemMessageResponse(Activity message)
         {
             if (message.Type == ActivityTypes.DeleteUserData)
             {
-                await DeleteData(message);
+                await FacebookController.LogoutHandler(message);
             }
             else if (message.Type == ActivityTypes.ConversationUpdate)
             {

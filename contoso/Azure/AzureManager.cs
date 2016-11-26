@@ -17,6 +17,8 @@ namespace contoso
         private IMobileServiceTable<Transaction> transactionTable;
         private IMobileServiceTable<LoginEvent> loginEventTable;
 
+        private static double LoginExpiryTime = 10; //minutes
+
 
         private AzureManager()
         {
@@ -44,37 +46,32 @@ namespace contoso
 
         public async Task<Account> RetrieveAccountFromFacebook(string FacebookId)
         {
-            try
-            {
-                return (await accountTable
-                    .Where(AccountItem => AccountItem.FacebookId == FacebookId)
-                    .ToListAsync())
-                    .FirstOrDefault();
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
-                System.Diagnostics.Debug.WriteLine(ex.Message);
-                return null;
-            }
+            return (await accountTable
+                .Where(AccountItem => AccountItem.FacebookId == FacebookId)
+                .ToListAsync())
+                .FirstOrDefault();
+        }
+
+        public async Task UpdateAccount(Account account)
+        {
+            await this.accountTable.UpdateAsync(account);
         }
 
 
         public async Task<LoginEvent> RetrieveLoginEventFromGUID(string GUID)
         {
-            try
-            {
-                return (await loginEventTable
+            LoginEvent loginEvent = (await loginEventTable
                 .Where(LoginEventItem => LoginEventItem.GUID == GUID)
                 .ToListAsync())
                 .FirstOrDefault();
-            }
-            catch (Exception ex)
+
+            if (loginEvent != null && loginEvent.Expiry < DateTime.Now)
             {
-                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
-                System.Diagnostics.Debug.WriteLine(ex.Message);
-                return null;
+                await RemoveLoginEvent(loginEvent);
+                loginEvent = null;
             }
+
+            return loginEvent;
         }
 
 
@@ -92,6 +89,7 @@ namespace contoso
 
         public async Task NewLoginEvent(LoginEvent loginEvent)
         {
+            loginEvent.Expiry = DateTime.Now.AddMinutes(LoginExpiryTime);
             await this.loginEventTable.InsertAsync(loginEvent);
         }
 

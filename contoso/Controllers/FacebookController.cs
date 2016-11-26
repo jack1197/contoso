@@ -37,17 +37,49 @@ namespace contoso.Controllers
         public static async Task<Activity> LoginHandler(Activity message)
         {
             StateClient stateClient = message.GetStateClient();
-            string guid = (await stateClient.BotState.GetUserDataAsync(message.ChannelId, message.From.Id)).GetProperty<string>("GUID");
+            BotData userData = await stateClient.BotState.GetUserDataAsync(message.ChannelId, message.From.Id);
+            string oldGUID = userData.GetProperty<string>("GUID");
 
-            await StartAuth(guid, message);
+            LoginEvent loginEvent = await AzureManager.AzureManagerInstance.RetrieveLoginEventFromGUID(oldGUID);
+            if (loginEvent != null)
+            {
+                await AzureManager.AzureManagerInstance.RemoveLoginEvent(loginEvent);
+            }
+
+            string GUID = Guid.NewGuid().ToString();
+            userData.SetProperty<string>("GUID", GUID);
+            await stateClient.BotState.SetUserDataAsync(message.ChannelId, message.From.Id, userData);
+
+            await StartAuth(GUID, message);
 
             Activity reply = message.CreateReply();
-            reply.Attachments = new List<Attachment> { GetLoginCard(GetLoginLink(message, guid), "Facebook") };
+            reply.Attachments = new List<Attachment> { LoginCard(GetLoginLink(message, GUID), "Facebook") };
             return reply;
         }
 
 
-        private static Attachment GetLoginCard(string URL, string provider)
+        public static async Task<Activity> LogoutHandler(Activity message)
+        {
+            StateClient stateClient = message.GetStateClient();
+            BotData userData = await stateClient.BotState.GetUserDataAsync(message.ChannelId, message.From.Id);
+            string GUID = userData.GetProperty<string>("GUID");
+            string Name = (userData.GetProperty<string>("Name") ?? "");
+            await stateClient.BotState.DeleteStateForUserAsync(message.ChannelId, message.From.Id);
+
+            //Try to tidy DB if applicible
+            try
+            {
+                Account account = await AzureManager.AzureManagerInstance.RetrieveAccountFromFacebook(userData.GetProperty<string>("FacebookID"));
+                account.CurrentGUID = null;
+                await AzureManager.AzureManagerInstance.UpdateAccount(account);
+            }
+            catch { }
+
+            return message.CreateReply($"User {Name} logged out");
+        }
+
+
+        private static Attachment LoginCard(string URL, string provider)
         {
             return new SigninCard
             {
@@ -137,9 +169,13 @@ namespace contoso.Controllers
         static private async Task<LoginEvent> StartLogin(string GUID, dynamic fbResult, dynamic meResult)
         {
             LoginEvent loginEvent = await AzureManager.AzureManagerInstance.RetrieveLoginEventFromGUID(GUID);
+            if (loginEvent == null || (loginEvent.FacebookToken ?? "") != "")
+            {
+                throw new InvalidOperationException("No current loginEvent found");
+            }
             loginEvent.FacebookToken = fbResult.access_token;
             loginEvent.FacebookId = meResult.id;
-            loginEvent.Name = fbResult.first_name + " " + fbResult.last_name;
+            loginEvent.Name = meResult.first_name + " " + meResult.last_name;
             await AzureManager.AzureManagerInstance.UpdateLoginEvent(loginEvent);
             return loginEvent;
         }

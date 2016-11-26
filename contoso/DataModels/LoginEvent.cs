@@ -38,5 +38,8 @@ namespace contoso.DataModels
         [JsonProperty(PropertyName = "conversation")]
         public string ConversationID { get; set; }
 
+        [JsonProperty(PropertyName = "expiry")]
+        public DateTime Expiry { get; set; }
+
     }
 }
