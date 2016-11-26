@@ -9,8 +9,10 @@ namespace contoso
 {
     public static class WebApiConfig
     {
+
         public static void Register(HttpConfiguration config)
         {
+            /*
             // Json settings
             config.Formatters.JsonFormatter.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
             config.Formatters.JsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
@@ -21,7 +23,7 @@ namespace contoso
                 Formatting = Newtonsoft.Json.Formatting.Indented,
                 NullValueHandling = NullValueHandling.Ignore,
             };
-
+            */
             // Web API configuration and services
 
             // Web API routes

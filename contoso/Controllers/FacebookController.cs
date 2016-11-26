@@ -1,4 +1,5 @@
-﻿using Facebook;
+﻿using contoso.DataModels;
+using Facebook;
 using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
 using System;
@@ -16,7 +17,7 @@ namespace contoso.Controllers
     {
         //private static string domain = "https://jw-contoso.azurewebsites.net";
         private static string domain = "http://localhost:3979";
-        private static string RedirectUri = domain + "/api/facebook/{0}?ChannelId={1}&FromId={2}&ServiceUrl={3}&ToId={4}&Conversation={5}";
+        private static string RedirectUri = domain + "/api/facebook/{0}"; //?ChannelId={1}&FromId={2}&ServiceUrl={3}&ToId={4}&Conversation={5}";
         private static string AppID = "237073960046883";
         private static string AppSecret = "d9c12221815fd2f7bcd742758b93b020";
 
@@ -26,8 +27,7 @@ namespace contoso.Controllers
             return facebookClient.GetLoginUrl(new
             {
                 client_id = AppID,
-                //client_secret = AppSecret, ---Why was this ever needed/suggested!!!???
-                redirect_uri = string.Format(RedirectUri, Id, message.ChannelId, message.From.Id, message.ServiceUrl, message.Recipient.Id, message.Conversation.Id),
+                redirect_uri = string.Format(RedirectUri, Id), //, message.ChannelId, message.From.Id, message.ServiceUrl, message.Recipient.Id, message.Conversation.Id),
                 response_type = "code",
                 scope = "email"
             }).AbsoluteUri;
@@ -37,10 +37,9 @@ namespace contoso.Controllers
         public static async Task<Activity> LoginHandler(Activity message)
         {
             StateClient stateClient = message.GetStateClient();
-            BotData userData = await stateClient.BotState.GetUserDataAsync(message.ChannelId, message.From.Id);
-            string guid = Guid.NewGuid().ToString();
-            userData.SetProperty<string>("LoginGUID", guid);
-            await stateClient.BotState.SetUserDataAsync(message.ChannelId, message.From.Id, userData);
+            string guid = (await stateClient.BotState.GetUserDataAsync(message.ChannelId, message.From.Id)).GetProperty<string>("GUID");
+
+            await StartAuth(guid, message);
 
             Activity reply = message.CreateReply();
             reply.Attachments = new List<Attachment> { GetLoginCard(GetLoginLink(message, guid), "Facebook") };
@@ -68,7 +67,7 @@ namespace contoso.Controllers
 
         public async Task<HttpResponseMessage> Get(string id)
         {
-            Dictionary<string, string> query = Request.GetQueryNameValuePairs().ToDictionary(x => x.Key, x => x.Value);
+            string code = Request.GetQueryNameValuePairs().First().Value;
 
             FacebookClient facebookClient = new FacebookClient();
             dynamic result = facebookClient.Post("oauth/access_token", new
@@ -76,14 +75,22 @@ namespace contoso.Controllers
                 client_id = AppID,
                 client_secret = AppSecret,
                 redirect_uri = Request.RequestUri.AbsoluteUri,
-                code = query["code"]
+                code = code
             });
             try
             {
                 facebookClient.AccessToken = result.access_token;
                 dynamic meResponse = facebookClient.Get("me?fields=first_name,last_name,id,email");
+                try
+                {
+                    string thing = JsonConvert.SerializeObject(meResponse);
+                    System.Diagnostics.Debug.WriteLine(thing);
+                }
+                catch { }
 
-                SendLoginMessage(query, meResponse);
+                LoginEvent loginEvent = await StartLogin(id, result, meResponse);
+
+                SendLoginMessage(loginEvent, meResponse);
 
                 HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Accepted);
                 response.Content = new StringContent("Log-in successful, you can now close the window");
@@ -98,17 +105,97 @@ namespace contoso.Controllers
         }
 
 
-        private async Task SendLoginMessage(Dictionary<string, string> query, dynamic meResponse)
+        static private async Task SendLoginMessage(LoginEvent loginEvent, dynamic meResponse)
         {
-            ConnectorClient connector = new ConnectorClient(new Uri(query["ServiceUrl"]));
+            ConnectorClient connector = new ConnectorClient(new Uri(loginEvent.ServiceUrl));
             IMessageActivity response = Activity.CreateMessageActivity();
-            response.From = new ChannelAccount(query["ToId"]);
-            response.Recipient = new ChannelAccount(query["FromId"]);
-            response.ChannelId = query["ChannelId"];
-            response.Conversation = new ConversationAccount(null, query["Conversation"]);
+            response.From = new ChannelAccount(loginEvent.ToID);
+            response.Recipient = new ChannelAccount(loginEvent.FromID);
+            response.ChannelId = loginEvent.ChannelID;
+            response.Conversation = new ConversationAccount(null, loginEvent.ConversationID);
             response.Text = string.Format("You are now signed in as {0} {1}", meResponse.first_name, meResponse.last_name);
             await connector.Conversations.SendToConversationAsync((Activity)response);
         }
+
+
+        static private async Task StartAuth(string GUID, Activity activity)
+        {
+            LoginEvent old = await AzureManager.AzureManagerInstance.RetrieveLoginEventFromGUID(GUID);
+            if (old != null)
+                await AzureManager.AzureManagerInstance.RemoveLoginEvent(old);
+            LoginEvent loginEvent =  new LoginEvent();
+            loginEvent.ChannelID = activity.ChannelId;
+            loginEvent.ConversationID = activity.Conversation.Id;
+            loginEvent.GUID = GUID;
+            loginEvent.ToID = activity.Recipient.Id;
+            loginEvent.FromID = activity.From.Id;
+            loginEvent.ServiceUrl = activity.ServiceUrl;
+            await AzureManager.AzureManagerInstance.NewLoginEvent(loginEvent);
+        }
+
+
+        static private async Task<LoginEvent> StartLogin(string GUID, dynamic fbResult, dynamic meResult)
+        {
+            LoginEvent loginEvent = await AzureManager.AzureManagerInstance.RetrieveLoginEventFromGUID(GUID);
+            loginEvent.FacebookToken = fbResult.access_token;
+            loginEvent.FacebookId = meResult.id;
+            loginEvent.Name = fbResult.first_name + " " + fbResult.last_name;
+            await AzureManager.AzureManagerInstance.UpdateLoginEvent(loginEvent);
+            return loginEvent;
+        }
+
+
+        static private async Task FinishLogin(Activity message, LoginEvent loginEvent)
+        {
+            StateClient stateClient = message.GetStateClient();
+            BotData userData = await stateClient.BotState.GetUserDataAsync(message.ChannelId, message.From.Id);
+            userData.SetProperty<bool>("Authorised", true);
+            userData.SetProperty<string>("Name", loginEvent.Name);
+            userData.SetProperty<string>("FacebookToken", loginEvent.FacebookToken);
+            userData.SetProperty<string>("FacebookID", loginEvent.FacebookId);
+            await stateClient.BotState.SetUserDataAsync(message.ChannelId, message.From.Id, userData);
+
+            Account account = await AzureManager.AzureManagerInstance.RetrieveAccountFromFacebook(loginEvent.FacebookId);
+            Random random = new Random((int)DateTime.Now.Ticks);
+
+            //simply for demonstation purposes!!!!!!!
+            if (account == null)
+            {
+                account = new Account
+                {
+                    Name = loginEvent.Name,
+                    Balance = 200.00,
+                    FacebookId = loginEvent.FacebookId,
+                    AccountNumber = $"54-1234-{random.Next(1000000,9999999)}-00"
+                };
+                await AzureManager.AzureManagerInstance.MakeAccount(account);
+            }
+
+            account.CurrentGUID = loginEvent.GUID;
+            await AzureManager.AzureManagerInstance.RemoveLoginEvent(loginEvent);
+        }
+
+
+        static public async Task<bool> CheckAuth(Activity message)
+        {
+            StateClient stateClient = message.GetStateClient();
+            BotData userData = await stateClient.BotState.GetUserDataAsync(message.ChannelId, message.From.Id);
+            if (userData.GetProperty<bool>("Authorised") == true)
+            {
+                return true;
+            }
+            else
+            {
+                LoginEvent loginEvent = await AzureManager.AzureManagerInstance.RetrieveLoginEventFromGUID(userData.GetProperty<string>("GUID"));
+                if (loginEvent?.FacebookId != null)
+                {
+                    await FinishLogin(message, loginEvent);
+                    return true;
+                }
+            }
+            return false;
+        }
+
 
     }
 }

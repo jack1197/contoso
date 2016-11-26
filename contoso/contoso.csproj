@@ -143,6 +143,8 @@
     <Compile Include="Azure\AzureManager.cs" />
     <Compile Include="Controllers\FacebookController.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
+    <Compile Include="DataModels\Account.cs" />
+    <Compile Include="DataModels\LoginEvent.cs" />
     <Compile Include="DataModels\LUISResponse.cs" />
     <Compile Include="DataModels\Transaction.cs" />
     <Compile Include="Global.asax.cs">

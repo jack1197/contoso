@@ -30,6 +30,7 @@ namespace contoso
 
         private async Task HandleActivity(Activity activity)
         {
+            await CheckGUID(activity);
             if (activity.Type == ActivityTypes.Message)
             {
                 await ReplyToActivity(activity, await UserMessageResponse(activity));
@@ -37,6 +38,45 @@ namespace contoso
             else
             {
                 await ReplyToActivity(activity, await SystemMessageResponse(activity));
+            }
+        }
+
+
+        private async Task<Activity> UserMessageResponse(Activity message)
+        {
+            if (!await FacebookController.CheckAuth(message))
+            {
+                return await FacebookController.LoginHandler(message);
+            }
+            LUISHandler.LUISQueryResult LUISResult = await LUISHandler.HandleQuery(message.Text);
+            switch (LUISResult.responseType)
+            {
+                case LUISHandler.ResponseType.ExchangeRate:
+                    return await ExchangeRateHandler.HandleExchangeRateMessage(message, LUISResult);
+                case LUISHandler.ResponseType.Logout:
+                    return await DeleteDataResponse(message);
+            }
+            return message.CreateReply("Unimplemented");
+        }
+
+
+
+
+
+
+
+
+
+
+        private async Task CheckGUID(Activity activity)
+        {
+            StateClient stateClient = activity.GetStateClient();
+            BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.From.Id);
+            if ((userData.GetProperty<string>("GUID") ?? "") == "")
+            {
+                userData.SetProperty<string>("GUID", Guid.NewGuid().ToString());
+                userData.SetProperty<bool>("Authorised", false);
+                await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
             }
         }
 
@@ -52,24 +92,10 @@ namespace contoso
         }
 
 
-        private async Task<Activity> UserMessageResponse(Activity message)
-        {
-            LUISHandler.LUISQueryResult LUISResult = await LUISHandler.HandleQuery(message.Text);
-            switch (LUISResult.responseType)
-            {
-                case LUISHandler.ResponseType.ExchangeRate:
-                    return await ExchangeRateHandler.HandleExchangeRateMessage(message, LUISResult);
-                default:
-                    return await FacebookController.LoginHandler(message);
-            }
-            return message.CreateReply("Unimplemented");
-        }
-
-
         private async Task<Activity> DeleteDataResponse(Activity message)
         {
             await DeleteData(message);
-            return message.CreateReply("User data deleted!");
+            return message.CreateReply("User logged out");
         }
 
 
