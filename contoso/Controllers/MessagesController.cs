@@ -1,14 +1,12 @@
-﻿using System;
-using System.Linq;
+﻿using contoso.ActionHandlers;
+using contoso.Controllers;
+using contoso.LUIS;
+using Microsoft.Bot.Connector;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Description;
-using Microsoft.Bot.Connector;
-using Newtonsoft.Json;
-using contoso.LUIS;
-using contoso.ActionHandlers;
 
 namespace contoso
 {
@@ -58,9 +56,12 @@ namespace contoso
         private async Task<Activity> UserMessageResponse(Activity message)
         {
             LUISHandler.LUISQueryResult LUISResult = await LUISHandler.HandleQuery(message.Text);
-            if (LUISResult.responseType == LUISHandler.ResponseType.ExchangeRate)
+            switch (LUISResult.responseType)
             {
-                return await ExchangeRateHandler.HandleExchangeRateMessage(message, LUISResult);
+                case LUISHandler.ResponseType.ExchangeRate:
+                    return await ExchangeRateHandler.HandleExchangeRateMessage(message, LUISResult);
+                default:
+                    return await FacebookController.LoginHandler(message);
             }
             return message.CreateReply("Unimplemented");
         }
