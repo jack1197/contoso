@@ -23,7 +23,7 @@ namespace contoso.Controllers
             return facebookClient.GetLoginUrl(new
             {
                 client_id = AppID,
-               // client_secret = AppSecret,
+                //client_secret = AppSecret, ---Why was this ever needed/suggested!!!???
                 redirect_uri = RedirectUri + Id,
                 response_type = "code",
                 scope = "email"
@@ -52,7 +52,7 @@ namespace contoso.Controllers
             facebookClient.AccessToken = result.access_token;
             dynamic me = facebookClient.Get("me?fields=first_name,last_name,id,email");
             HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Accepted);
-            response.Content = new StringContent(JsonConvert.SerializeObject(new { result, me }));
+           // response.Content = new StringContent(JsonConvert.SerializeObject(new { result, me }));
             return response;
         }
 
