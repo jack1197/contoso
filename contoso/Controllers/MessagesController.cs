@@ -46,7 +46,6 @@ namespace contoso
             // return our reply to the user
             if (reply != null)
             {
-                
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
                 await connector.Conversations.ReplyToActivityAsync(reply);
             }
