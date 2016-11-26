@@ -43,9 +43,9 @@ namespace contoso
 
         private async Task<Activity> UserMessageResponse(Activity message)
         {
-            if (!await FacebookController.CheckAuth(message))
+            if (!await FacebookHandler.CheckAuth(message))
             {
-                return await FacebookController.LoginHandler(message);
+                return await FacebookHandler.LoginHandler(message);
             }
             LUISHandler.LUISQueryResult LUISResult = await LUISHandler.HandleQuery(message.Text);
             switch (LUISResult.responseType)
@@ -53,10 +53,21 @@ namespace contoso
                 case LUISHandler.ResponseType.ExchangeRate:
                     return await ExchangeRateHandler.HandleExchangeRateMessage(message, LUISResult);
                 case LUISHandler.ResponseType.Logout:
-                    return await FacebookController.LogoutHandler(message);
+                    return await FacebookHandler.LogoutHandler(message);
+                case LUISHandler.ResponseType.None:
+                    return await UnknownHandler(message);
                 default:
-                    return message.CreateReply("Unimplemented");
+                    return message.CreateReply("Error: Unimplemented");
             }
+        }
+
+
+        private async Task<Activity> UnknownHandler(Activity message)
+        {
+            return message.CreateReply( "I'm sorry, I couldn't understand you. I can help with " +
+                                        "a range of activities, these are: Finding exchange rates, " +
+                                        "checking account information (e.g. Balance or transactions), and" + 
+                                        "making transactions to another account");
         }
 
 
@@ -82,7 +93,7 @@ namespace contoso
         {
             if (message.Type == ActivityTypes.DeleteUserData)
             {
-                await FacebookController.LogoutHandler(message);
+                await FacebookHandler.LogoutHandler(message);
             }
             else if (message.Type == ActivityTypes.ConversationUpdate)
             {
