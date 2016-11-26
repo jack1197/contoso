@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -13,8 +14,8 @@ namespace contoso.Controllers
 {
     public class FacebookController : ApiController
     {
-        private static string domain = "https://jw-contoso.azurewebsites.net";
-        //private static string domain = "http://localhost:3979";
+        //private static string domain = "https://jw-contoso.azurewebsites.net";
+        private static string domain = "http://localhost:3979";
         private static string RedirectUri = domain + "/api/facebook/{0}?ChannelId={1}&FromId={2}&ServiceUrl={3}&ToId={4}&Conversation={5}";
         private static string AppID = "237073960046883";
         private static string AppSecret = "d9c12221815fd2f7bcd742758b93b020";
@@ -40,8 +41,28 @@ namespace contoso.Controllers
             string guid = Guid.NewGuid().ToString();
             userData.SetProperty<string>("LoginGUID", guid);
             await stateClient.BotState.SetUserDataAsync(message.ChannelId, message.From.Id, userData);
-            return message.CreateReply(GetLoginLink(message, guid));
 
+            Activity reply = message.CreateReply();
+            reply.Attachments = new List<Attachment> { GetLoginCard(GetLoginLink(message, guid), "Facebook") };
+            return reply;
+        }
+
+
+        private static Attachment GetLoginCard(string URL, string provider)
+        {
+            return new SigninCard
+            {
+                Buttons = new List<CardAction>
+                {
+                    new CardAction
+                    {
+                        Value = URL,
+                        Type = "signin",
+                        Title = $"Sign in with {provider}"
+                    }
+                },
+                Text = "Hello, please sign in to continue:"
+            }.ToAttachment();
         }
 
 
@@ -65,11 +86,12 @@ namespace contoso.Controllers
                 SendLoginMessage(query, meResponse);
 
                 HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Accepted);
+                response.Content = new StringContent("Log-in successful, you can now close the window");
                 return response;
             }
             catch
             {
-                HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Accepted);
+                HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Unauthorized);
                 response.Content = new StringContent("Failed to login, please try again or contact the server admin");
                 return response;
             }
