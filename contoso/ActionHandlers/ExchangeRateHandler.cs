@@ -36,6 +36,7 @@ namespace contoso.ActionHandlers
 
         public static async Task<Activity> HandleExchangeRateMessage(Activity message, LUISHandler.LUISQueryResult LUISResult)
         {
+
             try
             {
                 if (!LUISResult.parameters.ContainsKey("SourceRate") || LUISResult.parameters["SourceRate"] == LUISResult.parameters["DestinationRate"])

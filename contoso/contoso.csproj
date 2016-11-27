@@ -138,7 +138,14 @@
     <Content Include="img\logo128.png" />
     <Content Include="img\logo256.png" />
     <Content Include="img\logo48.png" />
+    <Content Include="img\logo512.png" />
     <Content Include="img\logo96.png" />
+    <Content Include="img\logoCarousel512.png" />
+    <Content Include="img\logoRound.svg" />
+    <Content Include="img\logoRound256.png" />
+    <Content Include="img\logoRound48.png" />
+    <Content Include="img\logoRound512.png" />
+    <Content Include="img\logoRound96.png" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>

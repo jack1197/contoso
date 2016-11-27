@@ -53,7 +53,9 @@ namespace contoso.ActionHandlers
 
             Activity response = message.CreateReply("Here are your 10 most recent transactions from the past month:");
             response.Attachments = new List<Attachment>();
-           // response.AttachmentLayout = "carousel";
+            response.AttachmentLayout = "carousel";
+            response.Recipient = message.From;
+            response.Type = "message";
 
             foreach(Transaction transaction in transactions)
             {
@@ -66,21 +68,20 @@ namespace contoso.ActionHandlers
 
         private static Attachment TransactionHistoryCard(Transaction transaction)
         {
-            List<Fact> Facts = new List<Fact> {
-                new Fact("From:", AccountNumberFormat(transaction.From)),
-                new Fact("To:", AccountNumberFormat(transaction.To)),
-                new Fact("Date:", transaction.Date.ToString("dd/MMM/yy h:mm tt")),
-            };
-            return new ReceiptCard
+            return new HeroCard
             {
-                Title = "Transaction Record",
-                Facts = Facts,
-                //Items = new List<ReceiptItem>(),
-                Total = string.Format("NZD {0:F2}", transaction.Amount),
-                //Buttons = new List<CardAction>(),
+                Title = string.Format("Amount: {0:F2}", transaction.Amount),
+                Text =  $"From: {AccountNumberFormat(transaction.From)}  \nTo: {AccountNumberFormat(transaction.To)}  \nDate: { transaction.Date.ToString("dd/MMM/yy h:mm tt")}",
+                Images = new List<CardImage>
+                {
+                    new CardImage
+                    {
+                        Url = "https://jw-contoso.azurewebsites.net/img/logoCarousel512.png",
+                        Alt = "Contoso Bank Logo"
+                    }
+                }
             }.ToAttachment();
         }
-
 
 
         public class PendingTransaction
@@ -134,7 +135,7 @@ namespace contoso.ActionHandlers
             await stateClient.BotState.SetUserDataAsync(message.ChannelId, message.From.Id, userData);
 
             Activity response = message.CreateReply("Please confirm or cancel transaction:");
-            response.Attachments = new List<Attachment> { TransactionConfirmationCard(transaction).ToAttachment() };
+            response.Attachments = new List<Attachment> { TransactionConfirmationCard(transaction) };
             return response;
         }
 
@@ -163,23 +164,14 @@ namespace contoso.ActionHandlers
             }
 
             Activity response = message.CreateReply("Transaction successful!");
-            ReceiptCard receipt = TransactionConfirmationCard(transaction);
-            receipt.Title = "Transaction completed!";
-            receipt.Buttons = new List<CardAction>();
-            response.Attachments = new List<Attachment> { receipt.ToAttachment() };
+            response.Attachments = new List<Attachment> { TransactionCompleteCard(transaction) };
             return response;
 
         }
 
 
-        private static ReceiptCard TransactionConfirmationCard(PendingTransaction transaction)
+        private static Attachment TransactionConfirmationCard(PendingTransaction transaction)
         {
-            List<Fact> Facts = new List<Fact> {
-                new Fact("From account:"),
-                new Fact(AccountNumberFormat(transaction.From.AccountNumber), $"({transaction.From.Name})"),
-                new Fact("To Account:"),
-                new Fact(AccountNumberFormat(transaction.To.AccountNumber), $"({transaction.To.Name})"),
-            };
 
             List<CardAction> buttons = new List<CardAction>
             {
@@ -197,14 +189,39 @@ namespace contoso.ActionHandlers
                 }
             };
 
-            return new ReceiptCard
+
+            return new HeroCard
             {
-                Title = "Transaction Confirmation",
-                Facts = Facts,
-                Items = new List<ReceiptItem>(),
-                Total = string.Format("NZD {0:F2}", transaction.amount),
-                Buttons = buttons,
-            };
+                Title = "Confirm transaction",
+                Text = $"Amount: NZD {transaction.amount.ToString("F2")}  \nFrom: {AccountNumberFormat(transaction.From.AccountNumber)}  \nTo: {AccountNumberFormat(transaction.To.AccountNumber)}",
+                Images = new List<CardImage>
+                {
+                    new CardImage
+                    {
+                        Url = "https://jw-contoso.azurewebsites.net/img/logoCarousel512.png",
+                        Alt = "Contoso Bank Logo"
+                    }
+                },
+                Buttons = buttons
+            }.ToAttachment();
+        }
+
+
+        private static Attachment TransactionCompleteCard(PendingTransaction transaction)
+        {
+            return new HeroCard
+            {
+                Title = "Transaction confirmed!",
+                Text = $"Amount: NZD {transaction.amount.ToString("F2")}  \nFrom: {AccountNumberFormat(transaction.From.AccountNumber)}  \nTo: {AccountNumberFormat(transaction.To.AccountNumber)}",
+                Images = new List<CardImage>
+                {
+                    new CardImage
+                    {
+                        Url = "https://jw-contoso.azurewebsites.net/img/logoCarousel512.png",
+                        Alt = "Contoso Bank Logo"
+                    }
+                }
+            }.ToAttachment();
         }
 
 

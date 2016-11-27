@@ -17,9 +17,9 @@
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="logoRound.svg"
-   inkscape:export-filename="C:\Users\Jack\Documents\Visual Studio 2015\Projects\contoso\contoso\logo256.png"
-   inkscape:export-xdpi="480"
-   inkscape:export-ydpi="480">
+   inkscape:export-filename="C:\Users\Jack\Documents\Visual Studio 2015\Projects\contoso\contoso\img\logo512.png"
+   inkscape:export-xdpi="960"
+   inkscape:export-ydpi="960">
   <defs
      id="defs3338">
     <linearGradient
@@ -77,7 +77,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="5.6"
-     inkscape:cx="-62.402483"
+     inkscape:cx="-89.098911"
      inkscape:cy="13.380394"
      inkscape:document-units="px"
      inkscape:current-layer="g3524"
@@ -103,7 +103,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -121,11 +121,11 @@
          height="46.099525"
          x="0.95026308"
          y="1005.3126"
-         ry="23.049738"
+         ry="7.5090966"
          style="fill:url(#radialGradient5902);fill-opacity:1;stroke:url(#radialGradient5930);stroke-width:1.01656556px;stroke-opacity:1" />
       <g
          id="g3524"
-         transform="matrix(0.92241979,0,0,0.92242043,1.3798702,80.126707)"
+         transform="matrix(1.0165635,0,0,1.0165642,-0.58088804,-16.651788)"
          style="fill:#2e3d0f;fill-opacity:1">
         <path
            inkscape:connector-curvature="0"
