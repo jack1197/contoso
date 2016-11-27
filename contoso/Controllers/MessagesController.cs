@@ -27,7 +27,7 @@ namespace contoso
             return response;
         }
 
-
+        //takes activity event and determines how to respond
         private async Task HandleActivity(Activity activity)
         {
             try
@@ -48,16 +48,27 @@ namespace contoso
         }
 
 
+        //determine response to user message, i.e. text message
         private async Task<Activity> UserMessageResponse(Activity message)
         {
-            if (!await FacebookHandler.CheckAuth(message))
+            if (!await FacebookHandler.IsAuthorised(message))
             {
                 return await FacebookHandler.LoginHandler(message);
             }
-            if (await IsPendingConfirmation(message))
+            else if (await IsPendingConfirmation(message))
             {
                 return await ConfirmationHandler(message);
             }
+            else
+            {
+                return await NaturalInteractionHandler(message);
+            }
+        }
+
+
+        //uses LUIS to understand user query inteligently, and respond appropriately
+        private async Task<Activity> NaturalInteractionHandler(Activity message)
+        {
             LUISHandler.LUISQueryResult LUISResult = await LUISHandler.HandleQuery(message.Text);
             switch (LUISResult.responseType)
             {
@@ -79,6 +90,7 @@ namespace contoso
         }
 
 
+        //help message response
         private async Task<Activity> UnknownHandler(Activity message)
         {
             return message.CreateReply( "I'm sorry, I couldn't understand you. I can help with " +
@@ -88,6 +100,7 @@ namespace contoso
         }
 
 
+        //checks if the message is in response to a confirmation request (e.g. confirming transaction)
         private async Task<bool> IsPendingConfirmation(Activity message)
         {
             StateClient stateClient = message.GetStateClient();
@@ -96,6 +109,7 @@ namespace contoso
         }
 
 
+        //Handle message as a confirmation or response to a bot query
         private async Task<Activity> ConfirmationHandler(Activity message)
         {
             StateClient stateClient = message.GetStateClient();
@@ -106,7 +120,7 @@ namespace contoso
                 case "Transaction":
                     return await BankHandler.CompletePendingTransaction(message);
                 case "Logout":
-                    return await FacebookHandler.CompletePendingLogout(message);
+                    return await FacebookHandler.HandlePendingLogout(message);
                 default:
                     userData.SetProperty<string>("Pending", null);
                     await stateClient.BotState.SetUserDataAsync(message.ChannelId, message.From.Id, userData);
@@ -118,7 +132,7 @@ namespace contoso
 
 
 
-
+        //send given reply activity back to orginal user
         private async Task ReplyToActivity(Activity activity, Activity reply)
         {
             // return our reply to the user
@@ -130,6 +144,7 @@ namespace contoso
         }
 
 
+        //handle system messages, e.g. user joined
         private async Task<Activity> SystemMessageResponse(Activity message)
         {
             if (message.Type == ActivityTypes.DeleteUserData)

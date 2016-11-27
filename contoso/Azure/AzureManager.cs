@@ -1,4 +1,5 @@
-﻿using contoso.DataModels;
+﻿using contoso.ActionHandlers;
+using contoso.DataModels;
 using Microsoft.WindowsAzure.MobileServices;
 using Newtonsoft.Json;
 using System;
@@ -29,9 +30,26 @@ namespace contoso
         }
 
 
-        public async Task MakeAccount(Account account)
+        //make new account
+        public async Task<Account> CreateAccount(string Name, string FacebookID, string GUID)
         {
+            Random random = new Random((int)DateTime.Now.Ticks);
+            Account account = new Account
+            {
+                Name = Name,
+                Balance = 0,
+                FacebookId = FacebookID,
+                AccountNumber = $"541234{random.Next(1000000, 9999999)}000",
+                CurrentGUID = GUID
+            };
             await this.accountTable.InsertAsync(account);
+
+            //DEMONSTATION PURPOSES: give money
+            account = await GetAccountByNumber(account.AccountNumber);//must refresh
+            Account master = await GetAccountByNumber(BankHandler.MasterAccount);
+            await AzureManager.AzureManagerInstance.MakeTransaction(200, account, master);
+
+            return account;
         }
 
 
@@ -53,7 +71,7 @@ namespace contoso
         }
 
 
-        public async Task<Account> GetAccountByFacebook(string FacebookId)
+        public async Task<Account> GetAccountByFacebookID(string FacebookId)
         {
             return (await accountTable
                 .Where(AccountItem => AccountItem.FacebookId == FacebookId)
@@ -74,6 +92,7 @@ namespace contoso
                 .ToListAsync())
                 .FirstOrDefault();
 
+            //check timeout
             if (loginEvent != null && loginEvent.Expiry < DateTime.Now)
             {
                 await DeleteLoginEvent(loginEvent);
@@ -98,7 +117,7 @@ namespace contoso
 
         public async Task CreateLoginEvent(LoginEvent loginEvent)
         {
-            loginEvent.Expiry = DateTime.Now.AddMinutes(LoginExpiryTime);
+            loginEvent.Expiry = DateTime.Now.AddMinutes(LoginExpiryTime);//set timeout
             await this.loginEventTable.InsertAsync(loginEvent);
         }
 
@@ -107,8 +126,7 @@ namespace contoso
         {
             return (await transactionTable
                 .Where(TransactionItem => (TransactionItem.From == AccountNumber || TransactionItem.To == AccountNumber) 
-                                            && TransactionItem.Date > DateTime.Now.AddMonths(-1)
-                                            )
+                                            && TransactionItem.Date > DateTime.Now.AddMonths(-1))//from last month
                 .OrderByDescending(TransactionItem => TransactionItem.Date)
                 .ToListAsync());
         }
@@ -125,7 +143,8 @@ namespace contoso
                     Amount = amount,
                     Date = DateTime.Now,
                 };
-
+           
+                //dont need to update balances if sending money to self
                 if (From.AccountNumber != To.AccountNumber)
                 {
                     From.Balance -= amount;

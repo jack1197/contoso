@@ -39,13 +39,14 @@ namespace contoso.ActionHandlers
             return TwoDigitSuffixFind.Replace(WithDividers, "0");
         }
 
-
+        //Check account number is a valid format
         public static bool VerifyAccountNumber(string AccountNumber)
         {
             return VerifyBankAccountNumber.IsMatch(AccountNumber);
         }
 
 
+        //returns transaction history
         public static async Task<Activity> HandleHistory(Activity message)
         {
             string AccountNumber = (await message.GetStateClient().BotState.GetUserDataAsync(message.ChannelId, message.From.Id)).GetProperty<string>("AccountNumber");
@@ -57,8 +58,13 @@ namespace contoso.ActionHandlers
             response.Recipient = message.From;
             response.Type = "message";
 
-            foreach(Transaction transaction in transactions)
+            int count = 0;
+            foreach (Transaction transaction in transactions)
             {
+                if (count++ > 10)
+                {
+                    break;
+                }
                 response.Attachments.Add(TransactionHistoryCard(transaction));
             }
 
@@ -83,7 +89,7 @@ namespace contoso.ActionHandlers
             }.ToAttachment();
         }
 
-
+        
         public class PendingTransaction
         {
             public Account From { get; set; }
@@ -97,6 +103,7 @@ namespace contoso.ActionHandlers
             StateClient stateClient = message.GetStateClient();
             BotData userData = await stateClient.BotState.GetUserDataAsync(message.ChannelId, message.From.Id);
 
+            //check query included required paramaters
             if (!(LUISResult.parameters.ContainsKey("AccountNumber") && VerifyAccountNumber(LUISResult.parameters["AccountNumber"])))
             {
                 return message.CreateReply("To make a transaction, you must include a valid account number");
@@ -108,8 +115,9 @@ namespace contoso.ActionHandlers
 
             Account From = await AzureManager.AzureManagerInstance.GetAccountByNumber(userData.GetProperty<string>("AccountNumber"));
             Account To = await AzureManager.AzureManagerInstance.GetAccountByNumber(AccountNumberStrip(LUISResult.parameters["AccountNumber"]));
-            double amount = double.Parse(ExtractNum.Replace(FindNum.Match(LUISResult.parameters["Money"]).Value, ""));
+            double amount = double.TryParse(ExtractNum.Replace(FindNum.Match(LUISResult.parameters["Money"]).Value, ""), out amount) ? amount : 0.0;
 
+            //check particulars are valid
             if (amount <= 0)
             {
                 return message.CreateReply("Cannot send a non-positive amount of money");
@@ -123,6 +131,7 @@ namespace contoso.ActionHandlers
                 return message.CreateReply(string.Format("Insufficient funds $ {0:F2}, to pay $ {1:F2}", From.Balance, amount));
             }
 
+            //setup transaction, pending confirmation
             PendingTransaction transaction = new PendingTransaction
             {
                 From = From,
@@ -142,13 +151,16 @@ namespace contoso.ActionHandlers
 
         public static async Task<Activity> CompletePendingTransaction(Activity message)
         {
+            //get pending transaction
             StateClient stateClient = message.GetStateClient();
             BotData userData = await stateClient.BotState.GetUserDataAsync(message.ChannelId, message.From.Id);
             PendingTransaction transaction = userData.GetProperty<PendingTransaction>("PendingTransaction");
+
+            //clear pending data
             userData.SetProperty<PendingTransaction>("PendingTransaction", null);
             userData.SetProperty<string>("Pending", null);
             await stateClient.BotState.SetUserDataAsync(message.ChannelId, message.From.Id, userData);
-
+            
             if (message.Text.ToLower().Trim() == "confirm")
             {
                 //ensure nothing changed before confirmation
@@ -156,16 +168,18 @@ namespace contoso.ActionHandlers
                 {
                     return message.CreateReply(string.Format("Insufficient funds $ {0:F2}, to pay $ {1:F2}", transaction.From.Balance, transaction.amount));
                 }
+
                 await AzureManager.AzureManagerInstance.MakeTransaction(transaction.amount, transaction.To, transaction.From);
+
+                Activity response = message.CreateReply("Transaction successful!");
+                response.Attachments = new List<Attachment> { TransactionCompleteCard(transaction) };
+                return response;
             }
             else
             {
                 return message.CreateReply("Transaction canceled");
             }
 
-            Activity response = message.CreateReply("Transaction successful!");
-            response.Attachments = new List<Attachment> { TransactionCompleteCard(transaction) };
-            return response;
 
         }
 
@@ -188,7 +202,6 @@ namespace contoso.ActionHandlers
                     Value = "deny"
                 }
             };
-
 
             return new HeroCard
             {
