@@ -115,6 +115,9 @@ namespace contoso.ActionHandlers
         static private async Task FinishLogin(Activity message, LoginEvent loginEvent)
         {
 
+            StateClient stateClient = message.GetStateClient();
+            BotData userData = await stateClient.BotState.GetUserDataAsync(message.ChannelId, message.From.Id);
+
             Account account = await AzureManager.AzureManagerInstance.GetAccountByFacebook(loginEvent.FacebookId);
             Random random = new Random((int)DateTime.Now.Ticks);
 
@@ -126,7 +129,8 @@ namespace contoso.ActionHandlers
                     Name = loginEvent.Name,
                     Balance = 0,
                     FacebookId = loginEvent.FacebookId,
-                    AccountNumber = $"541234{random.Next(1000000, 9999999)}000"
+                    AccountNumber = $"541234{random.Next(1000000, 9999999)}000",
+                    CurrentGUID = userData.GetProperty<string>("GUID")
                 };
                 await AzureManager.AzureManagerInstance.MakeAccount(account);
                 //update
@@ -136,8 +140,6 @@ namespace contoso.ActionHandlers
                 await AzureManager.AzureManagerInstance.MakeTransaction(200, account, master);
             }
 
-            StateClient stateClient = message.GetStateClient();
-            BotData userData = await stateClient.BotState.GetUserDataAsync(message.ChannelId, message.From.Id);
             userData.SetProperty<bool>("Authorised", true);
             userData.SetProperty<string>("Name", loginEvent.Name);
             userData.SetProperty<string>("FacebookToken", loginEvent.FacebookToken);
@@ -156,6 +158,11 @@ namespace contoso.ActionHandlers
             BotData userData = await stateClient.BotState.GetUserDataAsync(message.ChannelId, message.From.Id);
             if (userData.GetProperty<bool>("Authorised") == true)
             {
+                Account account = await AzureManager.AzureManagerInstance.GetAccountByGUID(userData.GetProperty<string>("GUID"));
+                if (account == null)
+                {
+                    return false;
+                }
                 return true;
             }
             else

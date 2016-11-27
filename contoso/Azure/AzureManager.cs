@@ -44,6 +44,15 @@ namespace contoso
         }
 
 
+        public async Task<Account> GetAccountByGUID(string GUID)
+        {
+            return (await accountTable
+                .Where(AccountItem => AccountItem.CurrentGUID == GUID)
+                .ToListAsync())
+                .FirstOrDefault();
+        }
+
+
         public async Task<Account> GetAccountByFacebook(string FacebookId)
         {
             return (await accountTable
@@ -114,7 +123,7 @@ namespace contoso
                     From = From.AccountNumber,
                     To = To.AccountNumber,
                     Amount = amount,
-                    Date = DateTime.Now
+                    Date = DateTime.Now,
                 };
 
                 From.Balance -= amount;
