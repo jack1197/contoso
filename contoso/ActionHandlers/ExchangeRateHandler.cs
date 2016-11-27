@@ -39,14 +39,15 @@ namespace contoso.ActionHandlers
 
             try
             {
-                if (!LUISResult.parameters.ContainsKey("SourceRate") || LUISResult.parameters["SourceRate"] == LUISResult.parameters["DestinationRate"])
-                {
-                    return await ExchangeRateReply(message, LUISResult.parameters["DestinationRate"]);
-                }
-                else
-                {
-                    return await ExchangeRateReply(message, LUISResult.parameters["DestinationRate"], LUISResult.parameters["SourceRate"]);
-                }
+                //figure out conversions, if one rate given, try the other one as first nzd, then usd.
+                //ignoring destination/source for simplicity, will report rate both ways
+                List<string> givenRates = LUISResult.parameters.Values.Union(new List<string>{ "NZD", "USD" }, StringComparer.OrdinalIgnoreCase).Take(2).ToList();
+                //exact rates arent neccesarily inverses...
+                double FirstToSecond = await ExchangeRateFromTo(givenRates[0], givenRates[1]);
+                double SecondToFirst = await ExchangeRateFromTo(givenRates[1], givenRates[0]);
+                string reply = string.Format("Exchange rate from {0} to {1} is {2:F4}, and rate from {1} to {0} is {3:F4}", 
+                    givenRates[0].ToUpper(), givenRates[1].ToUpper(), FirstToSecond, SecondToFirst);
+                return message.CreateReply(reply);
             }
             catch (KeyNotFoundException)
             {
@@ -55,13 +56,12 @@ namespace contoso.ActionHandlers
         }
 
 
-        private static async Task<Activity> ExchangeRateReply(Activity message, string destinationRate, string sourceRate = "NZD")
+        private static async Task<double> ExchangeRateFromTo(string To, string From)
         {
             HttpClient client = new HttpClient();
-            HttpResponseMessage response = await client.GetAsync(string.Format(APIURL, Uri.EscapeDataString(sourceRate)));
+            HttpResponseMessage response = await client.GetAsync(string.Format(APIURL, Uri.EscapeDataString(From)));
             ExchangeResponse ExchangeResponse = JsonConvert.DeserializeObject<ExchangeResponse>(await response.Content.ReadAsStringAsync());
-            Activity reply = message.CreateReply(string.Format("Current exchange rate from {0} to {1} is: {2:f4}", sourceRate.ToUpper(), destinationRate.ToUpper(), ExchangeResponse.rates[destinationRate]));
-            return reply;
+            return ExchangeResponse.rates[To];
         }
     }
 }
