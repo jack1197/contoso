@@ -41,7 +41,7 @@ namespace contoso
                     await ReplyToActivity(activity, await SystemMessageResponse(activity));
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 await ReplyToActivity(activity, activity.CreateReply("Error processing message"));
             }
