@@ -161,6 +161,8 @@ namespace contoso.ActionHandlers
                 Account account = await AzureManager.AzureManagerInstance.GetAccountByGUID(userData.GetProperty<string>("GUID"));
                 if (account == null)
                 {
+                    userData.SetProperty<bool>("Authorised", false);
+                    await stateClient.BotState.SetUserDataAsync(message.ChannelId, message.From.Id, userData);
                     return false;
                 }
                 return true;
