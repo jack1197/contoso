@@ -139,6 +139,12 @@ namespace contoso.ActionHandlers
                 Account master = await AzureManager.AzureManagerInstance.GetAccountByNumber(BankHandler.MasterAccount);
                 await AzureManager.AzureManagerInstance.MakeTransaction(200, account, master);
             }
+            else
+            {
+                account = await AzureManager.AzureManagerInstance.GetAccountByNumber(account.AccountNumber);
+                account.CurrentGUID = userData.GetProperty<string>("GUID");
+                await AzureManager.AzureManagerInstance.UpdateAccount(account);
+            }
 
             userData.SetProperty<bool>("Authorised", true);
             userData.SetProperty<string>("Name", loginEvent.Name);
