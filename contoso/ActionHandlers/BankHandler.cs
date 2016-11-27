@@ -75,9 +75,9 @@ namespace contoso.ActionHandlers
             {
                 Title = "Transaction Record",
                 Facts = Facts,
-                Items = new List<ReceiptItem>(),
+                //Items = new List<ReceiptItem>(),
                 Total = string.Format("NZD {0:F2}", transaction.Amount),
-                Buttons = new List<CardAction>(),
+                //Buttons = new List<CardAction>(),
             }.ToAttachment();
         }
 
