@@ -64,6 +64,8 @@ namespace contoso
                     return await BankHandler.HandleBalance(message);
                 case LUISHandler.ResponseType.MakePayment:
                     return await BankHandler.HandleTransaction(message, LUISResult);
+                case LUISHandler.ResponseType.TransactionHistory:
+                    return await BankHandler.HandleHistory(message);
                 default:
                     return message.CreateReply("Error: Unimplemented");
             }

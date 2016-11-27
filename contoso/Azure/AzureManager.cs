@@ -98,7 +98,8 @@ namespace contoso
         {
             return (await transactionTable
                 .Where(TransactionItem => (TransactionItem.From == AccountNumber || TransactionItem.To == AccountNumber) 
-                                            && TransactionItem.Date.AddMonths(1) > DateTime.Now)
+                                            && TransactionItem.Date > DateTime.Now.AddMonths(-1)
+                                            )
                 .OrderByDescending(TransactionItem => TransactionItem.Date)
                 .ToListAsync());
         }
@@ -113,6 +114,7 @@ namespace contoso
                     From = From.AccountNumber,
                     To = To.AccountNumber,
                     Amount = amount,
+                    Date = DateTime.Now
                 };
 
                 From.Balance -= amount;

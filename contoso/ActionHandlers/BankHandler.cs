@@ -20,8 +20,8 @@ namespace contoso.ActionHandlers
         private static Regex TwoDigitSuffixFind = new Regex(@"(?<=[^\d])(?=\d{2})(?!\d{3})");
         private static Regex NonDecimalFind = new Regex(@"[^\d]+");
         private static Regex VerifyBankAccountNumber = new Regex(@"^\s*\d{2} *-? *\d{4} *-? *\d{7} *-? *\d{2,3}(?!\s*[^\s])");
-        private static Regex FindNum = new Regex(@"(([\d, ]*\d *)(\. *\d[\d, ]*))|(([\d, ]*\d *)|(\. *\d[\d, ]*))");
-        private static Regex ExtractNum = new Regex(@"[^\d.]");
+        private static Regex FindNum = new Regex(@"-?((([\d, ]*\d *)(\. *\d[\d, ]*))|(([\d, ]*\d *)|(\. *\d[\d, ]*)))");
+        private static Regex ExtractNum = new Regex(@"[^-\d.]");
 
         //removes all formatting from account number
         public static string AccountNumberStrip(string AccountNumber)
@@ -50,8 +50,39 @@ namespace contoso.ActionHandlers
         {
             string AccountNumber = (await message.GetStateClient().BotState.GetUserDataAsync(message.ChannelId, message.From.Id)).GetProperty<string>("AccountNumber");
             List<Transaction> transactions = await AzureManager.AzureManagerInstance.GetTransactionsByAccountNumber(AccountNumber);
-            return null;
+
+            Activity response = message.CreateReply("Here are your transactions for the past month:");
+            response.Attachments = new List<Attachment>();
+            response.AttachmentLayout = "carousel";
+
+            foreach(Transaction transaction in transactions)
+            {
+                response.Attachments.Add(TransactionHistoryCard(transaction));
+            }
+
+            return response;
         }
+
+
+        private static Attachment TransactionHistoryCard(Transaction transaction)
+        {
+            List<Fact> Facts = new List<Fact> {
+                new Fact("From account:"),
+                new Fact(AccountNumberFormat(transaction.From)),
+                new Fact("To Account:"),
+                new Fact(AccountNumberFormat(transaction.To)),
+                new Fact("Date:", transaction.Date.ToString("dd/MMM/yy h:mm tt")),
+            };
+            return new ReceiptCard
+            {
+                Title = "Transaction Confirmation",
+                Facts = Facts,
+                Items = new List<ReceiptItem>(),
+                Total = string.Format("NZD {0:F2}", transaction.Amount),
+                Buttons = new List<CardAction>(),
+            }.ToAttachment();
+        }
+
 
 
         public class PendingTransaction

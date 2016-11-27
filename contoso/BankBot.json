@@ -1089,6 +1089,248 @@
           "endPos": 9
         }
       ]
+    },
+    {
+      "text": "send 0.05 to 54-1337-0000000-000",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 3
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 5,
+          "endPos": 11
+        }
+      ]
+    },
+    {
+      "text": "log out",
+      "intent": "Logout",
+      "entities": []
+    },
+    {
+      "text": "what is my account like",
+      "intent": "AccountBalance",
+      "entities": []
+    },
+    {
+      "text": "thank you",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "send 5 dollars to 54-1337-0000000-000",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 2
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 4,
+          "endPos": 10
+        }
+      ]
+    },
+    {
+      "text": "help me",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "whats my current account balance",
+      "intent": "AccountBalance",
+      "entities": []
+    },
+    {
+      "text": "transactions",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "send -51 to 5413370000000000",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 2
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 4,
+          "endPos": 4
+        }
+      ]
+    },
+    {
+      "text": "who have i pad",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "make a payment of 2 dollars to 54-1337-0000000-00",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 4,
+          "endPos": 5
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 7,
+          "endPos": 13
+        }
+      ]
+    },
+    {
+      "text": "send $-51 to 5413370000000000",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 3
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 5,
+          "endPos": 5
+        }
+      ]
+    },
+    {
+      "text": "who have i paid?",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "whats my account balance'",
+      "intent": "AccountBalance",
+      "entities": []
+    },
+    {
+      "text": "send 0.05 to 5413370000000000",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 3
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 5,
+          "endPos": 5
+        }
+      ]
+    },
+    {
+      "text": "who have i paid",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "sent $5 to 5413370000000000",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 2
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 4,
+          "endPos": 4
+        }
+      ]
+    },
+    {
+      "text": "son $1,000,000 to 5413370000000000",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 6
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 8,
+          "endPos": 8
+        }
+      ]
+    },
+    {
+      "text": "send $1,000,000 to 5413370000000000",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 6
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 8,
+          "endPos": 8
+        }
+      ]
+    },
+    {
+      "text": "so 1,000,000.00 dollars to 5413370000000000",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 8
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 10,
+          "endPos": 10
+        }
+      ]
+    },
+    {
+      "text": "send 1,000,000.00 dollars to 5413370000000000",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 8
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 10,
+          "endPos": 10
+        }
+      ]
+    },
+    {
+      "text": "pay $20 to 23-9643-1231232-00",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 2
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 4,
+          "endPos": 10
+        }
+      ]
     }
   ]
 }
