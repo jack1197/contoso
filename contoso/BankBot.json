@@ -72,7 +72,7 @@
     {
       "name": "CurrencyCodes",
       "mode": true,
-      "words": "AUD,BGN,BRL,CAD,CHF,CNY,CZK,DKK,GBP,HKD,HRK,HUF,IDR,ILS,INR,JPY,KRW,MXN,MYR,NOK,PHP,PLN,RON,RUB,SEK,SGD,THB,TRY,USD,ZAR,EUR",
+      "words": "AUD,BGN,BRL,CAD,CHF,CNY,CZK,DKK,GBP,HKD,HRK,HUF,IDR,ILS,INR,JPY,KRW,MXN,MYR,NOK,NZD,PHP,PLN,RON,RUB,SEK,SGD,THB,TRY,USD,ZAR,EUR",
       "activated": true
     }
   ],
@@ -1331,6 +1331,374 @@
           "endPos": 10
         }
       ]
+    },
+    {
+      "text": "edited previous message: send 100 dollars to 54-1234-7308925-000<e_m ts=\"1480225162\" ts_ms=\"1480225163867\" a=\"live:jwi123_1\" t=\"61\"/>",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 5,
+          "endPos": 6
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 8,
+          "endPos": 14
+        }
+      ]
+    },
+    {
+      "text": "give me my bank statement",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "send me my statement",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "edited previous message: send me my bank statement<e_m ts=\"1480223476\" ts_ms=\"1480223476935\" a=\"live:jwi123_1\" t=\"61\"/>",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "give me a bank statement",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "send 123 dollars to 54-1234-7308925-000",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 2
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 4,
+          "endPos": 10
+        }
+      ]
+    },
+    {
+      "text": "send me my bank staement",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "sen $50 to 54-1337-0000000-000",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 2
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 4,
+          "endPos": 10
+        }
+      ]
+    },
+    {
+      "text": "what are my transactions",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "how much money i got",
+      "intent": "AccountBalance",
+      "entities": []
+    },
+    {
+      "text": "show me my history",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "send 100 dollars to 54-1234-7308925-000",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 2
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 4,
+          "endPos": 10
+        }
+      ]
+    },
+    {
+      "text": "send 250 dollars to 54-1234-7308925-000",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 2
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 4,
+          "endPos": 10
+        }
+      ]
+    },
+    {
+      "text": "what's my account balance",
+      "intent": "AccountBalance",
+      "entities": []
+    },
+    {
+      "text": "how much money do i have",
+      "intent": "AccountBalance",
+      "entities": []
+    },
+    {
+      "text": "send 50 dollars to 54-1234-7308925-000",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 2
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 4,
+          "endPos": 10
+        }
+      ]
+    },
+    {
+      "text": "how much mone do i have",
+      "intent": "AccountBalance",
+      "entities": []
+    },
+    {
+      "text": "what's the exchange rate to nzd from usd",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "SourceRate",
+          "startPos": 9,
+          "endPos": 9
+        },
+        {
+          "entity": "DestinationRate",
+          "startPos": 7,
+          "endPos": 7
+        }
+      ]
+    },
+    {
+      "text": "what's my history",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "send $2.12 to 54-1337-0000000-00",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 4
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 6,
+          "endPos": 12
+        }
+      ]
+    },
+    {
+      "text": "what's the exchange rate to aud from rub",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "SourceRate",
+          "startPos": 9,
+          "endPos": 9
+        },
+        {
+          "entity": "DestinationRate",
+          "startPos": 7,
+          "endPos": 7
+        }
+      ]
+    },
+    {
+      "text": "send 55.34 to 54-1234-7308925-000",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 3
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 5,
+          "endPos": 11
+        }
+      ]
+    },
+    {
+      "text": "send $13.37 to 54-1337-0000000-000",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 4
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 6,
+          "endPos": 12
+        }
+      ]
+    },
+    {
+      "text": "what is my account balance",
+      "intent": "AccountBalance",
+      "entities": []
+    },
+    {
+      "text": "whats the exchange rate for usd in rub",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "SourceRate",
+          "startPos": 7,
+          "endPos": 7
+        },
+        {
+          "entity": "DestinationRate",
+          "startPos": 5,
+          "endPos": 5
+        }
+      ]
+    },
+    {
+      "text": "usd to rub",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "SourceRate",
+          "startPos": 0,
+          "endPos": 0
+        },
+        {
+          "entity": "DestinationRate",
+          "startPos": 2,
+          "endPos": 2
+        }
+      ]
+    },
+    {
+      "text": "what's my transaction history",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "what is the exchange rate for rub from usd",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "SourceRate",
+          "startPos": 8,
+          "endPos": 8
+        },
+        {
+          "entity": "DestinationRate",
+          "startPos": 6,
+          "endPos": 6
+        }
+      ]
+    },
+    {
+      "text": "send $50 to 54-1337-0000000-000",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 2
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 4,
+          "endPos": 10
+        }
+      ]
+    },
+    {
+      "text": "transaction history",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "exchange rate",
+      "intent": "ExchangeRate",
+      "entities": []
+    },
+    {
+      "text": "whats the exchange rate for usd",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "DestinationRate",
+          "startPos": 5,
+          "endPos": 5
+        }
+      ]
+    },
+    {
+      "text": "whats the exchange rate",
+      "intent": "ExchangeRate",
+      "entities": []
+    },
+    {
+      "text": "exchange rate for nzd",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "DestinationRate",
+          "startPos": 3,
+          "endPos": 3
+        }
+      ]
+    },
+    {
+      "text": "send $2.50 to 54-1337-0000000-000",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 4
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 6,
+          "endPos": 12
+        }
+      ]
+    },
+    {
+      "text": "thanks for that, bye",
+      "intent": "Logout",
+      "entities": []
     }
   ]
 }
