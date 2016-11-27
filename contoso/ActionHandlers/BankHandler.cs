@@ -88,6 +88,10 @@ namespace contoso.ActionHandlers
             {
                 return message.CreateReply("Recipient account not found");
             }
+            if(amount > From.Balance)
+            {
+                return message.CreateReply(string.Format("Insufficient funds $ {0:F2}, to pay $ {1:F2}", From.Balance, amount));
+            }
 
             PendingTransaction transaction = new PendingTransaction
             {
@@ -96,16 +100,50 @@ namespace contoso.ActionHandlers
                 amount = amount
             };
 
-            userData.SetProperty<string>("Pending", "Transaction");
-            userData.SetProperty<object>("PendingTransaction", transaction);
+            userData.SetProperty("Pending", "Transaction");
+            userData.SetProperty("PendingTransaction", transaction);
+            await stateClient.BotState.SetUserDataAsync(message.ChannelId, message.From.Id, userData);
 
             Activity response = message.CreateReply("Please confirm or cancel transaction:");
-            response.Attachments = new List<Attachment> { TransactionConfirmationCard(transaction) };
+            response.Attachments = new List<Attachment> { TransactionConfirmationCard(transaction).ToAttachment() };
             return response;
         }
 
 
-        private static Attachment TransactionConfirmationCard(PendingTransaction transaction)
+        public static async Task<Activity> CompletePendingTransaction(Activity message)
+        {
+            StateClient stateClient = message.GetStateClient();
+            BotData userData = await stateClient.BotState.GetUserDataAsync(message.ChannelId, message.From.Id);
+            PendingTransaction transaction = userData.GetProperty<PendingTransaction>("PendingTransaction");
+            userData.SetProperty<PendingTransaction>("PendingTransaction", null);
+            userData.SetProperty<string>("Pending", null);
+            await stateClient.BotState.SetUserDataAsync(message.ChannelId, message.From.Id, userData);
+
+            if (message.Text.ToLower().Trim() == "confirm")
+            {
+                //ensure nothing changed before confirmation
+                if (transaction.amount > transaction.From.Balance)
+                {
+                    return message.CreateReply(string.Format("Insufficient funds $ {0:F2}, to pay $ {1:F2}", transaction.From.Balance, transaction.amount));
+                }
+                await AzureManager.AzureManagerInstance.MakeTransaction(transaction.amount, transaction.To, transaction.From);
+            }
+            else
+            {
+                return message.CreateReply("Transaction canceled");
+            }
+
+            Activity response = message.CreateReply("Transaction successful!");
+            ReceiptCard receipt = TransactionConfirmationCard(transaction);
+            receipt.Title = "Transaction completed!";
+            receipt.Buttons = new List<CardAction>();
+            response.Attachments = new List<Attachment> { receipt.ToAttachment() };
+            return response;
+
+        }
+
+
+        private static ReceiptCard TransactionConfirmationCard(PendingTransaction transaction)
         {
             List<Fact> Facts = new List<Fact> {
                 new Fact("From account:"),
@@ -130,17 +168,14 @@ namespace contoso.ActionHandlers
                 }
             };
 
-
             return new ReceiptCard
             {
                 Title = "Transaction Confirmation",
                 Facts = Facts,
                 Items = new List<ReceiptItem>(),
-                Tax = "NZD 0.00",
-                Vat = "NZD 0.00",
                 Total = string.Format("NZD {0:F2}", transaction.amount),
                 Buttons = buttons,
-            }.ToAttachment();
+            };
         }
 
 

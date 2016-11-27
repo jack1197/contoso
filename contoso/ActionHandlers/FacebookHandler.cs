@@ -12,8 +12,12 @@ namespace contoso.ActionHandlers
     public class FacebookHandler
     {
 
-        //private static string domain = "https://jw-contoso.azurewebsites.net";
+#if DEBUG
         private static string domain = "http://localhost:3979";
+#else
+        private static string domain = "https://jw-contoso.azurewebsites.net";
+#endif
+
         private static string RedirectUri = domain + "/api/facebook/{0}"; //?ChannelId={1}&FromId={2}&ServiceUrl={3}&ToId={4}&Conversation={5}";
         private static string AppID = "237073960046883";
 

@@ -47,6 +47,10 @@ namespace contoso
             {
                 return await FacebookHandler.LoginHandler(message);
             }
+            if (await IsPendingConfirmation(message))
+            {
+                return await ConfirmationHandler(message);
+            }
             LUISHandler.LUISQueryResult LUISResult = await LUISHandler.HandleQuery(message.Text);
             switch (LUISResult.responseType)
             {
@@ -75,7 +79,29 @@ namespace contoso
         }
 
 
+        private async Task<bool> IsPendingConfirmation(Activity message)
+        {
+            StateClient stateClient = message.GetStateClient();
+            BotData userData = await stateClient.BotState.GetUserDataAsync(message.ChannelId, message.From.Id);
+            return (userData.GetProperty<string>("Pending") ?? "") != "";
+        }
 
+
+        private async Task<Activity> ConfirmationHandler(Activity message)
+        {
+            StateClient stateClient = message.GetStateClient();
+            BotData userData = await stateClient.BotState.GetUserDataAsync(message.ChannelId, message.From.Id);
+            string pendingOn = userData.GetProperty<string>("Pending");
+            switch (pendingOn)
+            {
+                case "Transaction":
+                    return await BankHandler.CompletePendingTransaction(message);
+                default:
+                    userData.SetProperty<string>("Pending", null);
+                    await stateClient.BotState.SetUserDataAsync(message.ChannelId, message.From.Id, userData);
+                    return message.CreateReply("Something went wrong, please try again");
+            }
+        }
 
 
 

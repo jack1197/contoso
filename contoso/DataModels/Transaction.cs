@@ -17,7 +17,7 @@ namespace contoso.DataModels
         [JsonProperty(PropertyName = "to")]
         public string To { get; set; }
 
-        [JsonProperty(PropertyName = "createdAt")]
+        [JsonProperty(PropertyName = "transactionDate")]
         public DateTime Date { get; set; }
 
         [JsonProperty(PropertyName = "amount")]

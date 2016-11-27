@@ -106,19 +106,26 @@ namespace contoso
 
         public async Task MakeTransaction(double amount,  Account To, Account From)
         {
-            Transaction transaction = new Transaction
+            try
             {
-                From = From.AccountNumber,
-                To = To.AccountNumber,
-                Amount = amount,
-            };
+                Transaction transaction = new Transaction
+                {
+                    From = From.AccountNumber,
+                    To = To.AccountNumber,
+                    Amount = amount,
+                };
 
-            From.Balance -= amount;
-            To.Balance += amount;
+                From.Balance -= amount;
+                To.Balance += amount;
 
-            await this.transactionTable.InsertAsync(transaction);
-            await this.accountTable.UpdateAsync(From);
-            await this.accountTable.UpdateAsync(To);
+                await this.transactionTable.InsertAsync(transaction);
+                await this.accountTable.UpdateAsync(From);
+                await this.accountTable.UpdateAsync(To);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+            }
         }
 
 
