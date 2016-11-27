@@ -51,7 +51,7 @@ namespace contoso.ActionHandlers
             string AccountNumber = (await message.GetStateClient().BotState.GetUserDataAsync(message.ChannelId, message.From.Id)).GetProperty<string>("AccountNumber");
             List<Transaction> transactions = await AzureManager.AzureManagerInstance.GetTransactionsByAccountNumber(AccountNumber);
 
-            Activity response = message.CreateReply("Here are your transactions for the past month:");
+            Activity response = message.CreateReply("Here are your 10 most recent transactions from the past month:");
             response.Attachments = new List<Attachment>();
            // response.AttachmentLayout = "carousel";
 

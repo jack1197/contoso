@@ -126,8 +126,11 @@ namespace contoso
                     Date = DateTime.Now,
                 };
 
-                From.Balance -= amount;
-                To.Balance += amount;
+                if (From.AccountNumber != To.AccountNumber)
+                {
+                    From.Balance -= amount;
+                    To.Balance += amount;
+                }
 
                 await this.transactionTable.InsertAsync(transaction);
                 await this.accountTable.UpdateAsync(From);
