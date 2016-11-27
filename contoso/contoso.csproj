@@ -134,6 +134,11 @@
   <ItemGroup>
     <Content Include="default.htm" />
     <Content Include="Global.asax" />
+    <Content Include="img\logo.svg" />
+    <Content Include="img\logo128.png" />
+    <Content Include="img\logo256.png" />
+    <Content Include="img\logo48.png" />
+    <Content Include="img\logo96.png" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
