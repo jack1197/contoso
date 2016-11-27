@@ -30,13 +30,20 @@ namespace contoso
 
         private async Task HandleActivity(Activity activity)
         {
-            if (activity.Type == ActivityTypes.Message)
+            try
             {
-                await ReplyToActivity(activity, await UserMessageResponse(activity));
+                if (activity.Type == ActivityTypes.Message)
+                {
+                    await ReplyToActivity(activity, await UserMessageResponse(activity));
+                }
+                else
+                {
+                    await ReplyToActivity(activity, await SystemMessageResponse(activity));
+                }
             }
-            else
+            catch (Exception ex)
             {
-                await ReplyToActivity(activity, await SystemMessageResponse(activity));
+                await ReplyToActivity(activity, activity.CreateReply("Error processing message"));
             }
         }
 
