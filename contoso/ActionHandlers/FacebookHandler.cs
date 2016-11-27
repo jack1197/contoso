@@ -62,20 +62,66 @@ namespace contoso.ActionHandlers
         {
             StateClient stateClient = message.GetStateClient();
             BotData userData = await stateClient.BotState.GetUserDataAsync(message.ChannelId, message.From.Id);
-            string GUID = userData.GetProperty<string>("GUID");
-            string Name = (userData.GetProperty<string>("Name") ?? "");
-            await stateClient.BotState.DeleteStateForUserAsync(message.ChannelId, message.From.Id);
+            userData.SetProperty<string>("Pending", "Logout");
+            await stateClient.BotState.SetUserDataAsync(message.ChannelId, message.From.Id, userData);
 
-            //Try to tidy DB if applicible
-            try
+            Activity response = message.CreateReply();
+            response.Attachments = new List<Attachment> { LogoutConfirmationCard() };
+            return response;
+        }
+
+
+        public static Attachment LogoutConfirmationCard()
+        {
+            return new HeroCard()
             {
-                Account account = await AzureManager.AzureManagerInstance.GetAccountByFacebook(userData.GetProperty<string>("FacebookID"));
-                account.CurrentGUID = null;
-                await AzureManager.AzureManagerInstance.UpdateAccount(account);
-            }
-            catch { }
+                Title = "Please confirm logout",
+                Buttons = new List<CardAction>
+                {
+                    new CardAction
+                    {
+                        Type = "imBack",
+                        Title = "Confirm",
+                        Value = "confirm"
+                    },
+                    new CardAction
+                    {
+                        Type = "imBack",
+                        Title = "Cancel",
+                        Value = "deny"
+                    },
+                }
+            }.ToAttachment();
+        }
 
-            return message.CreateReply($"User {Name} logged out");
+
+        public static async Task<Activity> CompletePendingLogout(Activity message)
+        {
+            StateClient stateClient = message.GetStateClient();
+            BotData userData = await stateClient.BotState.GetUserDataAsync(message.ChannelId, message.From.Id);
+            if (message.Text.Trim().ToLower() == "confirm")
+            {
+                string GUID = userData.GetProperty<string>("GUID");
+                string Name = (userData.GetProperty<string>("Name") ?? "");
+                await stateClient.BotState.DeleteStateForUserAsync(message.ChannelId, message.From.Id);
+
+                //Try to tidy DB if applicible
+                try
+                {
+                    Account account = await AzureManager.AzureManagerInstance.GetAccountByFacebook(userData.GetProperty<string>("FacebookID"));
+                    account.CurrentGUID = null;
+                    await AzureManager.AzureManagerInstance.UpdateAccount(account);
+                }
+                catch { }//operation may not occur, and this is fine
+
+                return message.CreateReply($"User {Name} logged out");
+            }
+            else
+            {
+                userData.SetProperty<string>("Pending", null);
+                await stateClient.BotState.SetUserDataAsync(message.ChannelId, message.From.Id, userData);
+                return message.CreateReply("Logout canceled");
+            }
         }
 
 

@@ -98,6 +98,8 @@ namespace contoso
             {
                 case "Transaction":
                     return await BankHandler.CompletePendingTransaction(message);
+                case "Logout":
+                    return await FacebookHandler.CompletePendingLogout(message);
                 default:
                     userData.SetProperty<string>("Pending", null);
                     await stateClient.BotState.SetUserDataAsync(message.ChannelId, message.From.Id, userData);
