@@ -11,7 +11,7 @@ namespace contoso.LUIS
 {
     public class LUISHandler
     {
-        static string APIURL = "https://api.projectoxford.ai/luis/v2.0/apps/c1cf5d18-525a-46af-84c2-c31a7a290906?subscription-key=026a31cd2ad3411d8a757b6e85400c77&verbose=true&q={0}";
+        static string APIURL = "https://api.projectoxford.ai/luis/v2.0/apps/e961442d-73e4-4ca3-91f0-b822dbbdc7b3?subscription-key=026a31cd2ad3411d8a757b6e85400c77&q={0}";
 
         public enum ResponseType
         {

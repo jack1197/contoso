@@ -77,7 +77,7 @@ namespace contoso.ActionHandlers
             }
 
             Account From = await AzureManager.AzureManagerInstance.GetAccountByNumber(userData.GetProperty<string>("AccountNumber"));
-            Account To = await AzureManager.AzureManagerInstance.GetAccountByNumber(LUISResult.parameters["AccountNumber"]);
+            Account To = await AzureManager.AzureManagerInstance.GetAccountByNumber(AccountNumberStrip(LUISResult.parameters["AccountNumber"]));
             double amount = double.Parse(ExtractNum.Replace(FindNum.Match(LUISResult.parameters["money"]).Value, ""));
 
             if (amount <= 0)
