@@ -71,14 +71,14 @@ namespace contoso.ActionHandlers
             {
                 return message.CreateReply("To make a transaction, you must include a valid account number");
             }
-            if (!LUISResult.parameters.ContainsKey("money"))
+            if (!LUISResult.parameters.ContainsKey("Money"))
             {
                 return message.CreateReply("To make a transaction, you must include an amount to send");
             }
 
             Account From = await AzureManager.AzureManagerInstance.GetAccountByNumber(userData.GetProperty<string>("AccountNumber"));
             Account To = await AzureManager.AzureManagerInstance.GetAccountByNumber(AccountNumberStrip(LUISResult.parameters["AccountNumber"]));
-            double amount = double.Parse(ExtractNum.Replace(FindNum.Match(LUISResult.parameters["money"]).Value, ""));
+            double amount = double.Parse(ExtractNum.Replace(FindNum.Match(LUISResult.parameters["Money"]).Value, ""));
 
             if (amount <= 0)
             {
