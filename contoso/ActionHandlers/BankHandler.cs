@@ -53,7 +53,7 @@ namespace contoso.ActionHandlers
 
             Activity response = message.CreateReply("Here are your transactions for the past month:");
             response.Attachments = new List<Attachment>();
-            response.AttachmentLayout = "carousel";
+           // response.AttachmentLayout = "carousel";
 
             foreach(Transaction transaction in transactions)
             {
@@ -67,15 +67,13 @@ namespace contoso.ActionHandlers
         private static Attachment TransactionHistoryCard(Transaction transaction)
         {
             List<Fact> Facts = new List<Fact> {
-                new Fact("From account:"),
-                new Fact(AccountNumberFormat(transaction.From)),
-                new Fact("To Account:"),
-                new Fact(AccountNumberFormat(transaction.To)),
+                new Fact("From:", AccountNumberFormat(transaction.From)),
+                new Fact("To:", AccountNumberFormat(transaction.To)),
                 new Fact("Date:", transaction.Date.ToString("dd/MMM/yy h:mm tt")),
             };
             return new ReceiptCard
             {
-                Title = "Transaction Confirmation",
+                Title = "Transaction Record",
                 Facts = Facts,
                 Items = new List<ReceiptItem>(),
                 Total = string.Format("NZD {0:F2}", transaction.Amount),
