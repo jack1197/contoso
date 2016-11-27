@@ -73,7 +73,7 @@ namespace contoso.Controllers
 
         static private async Task<LoginEvent> StartLogin(string GUID, dynamic fbResult, dynamic meResult)
         {
-            LoginEvent loginEvent = await AzureManager.AzureManagerInstance.RetrieveLoginEventFromGUID(GUID);
+            LoginEvent loginEvent = await AzureManager.AzureManagerInstance.GetLoginEventByGUID(GUID);
             if (loginEvent == null || (loginEvent.FacebookToken ?? "") != "")
             {
                 throw new InvalidOperationException("No current loginEvent found");

@@ -56,6 +56,10 @@ namespace contoso
                     return await FacebookHandler.LogoutHandler(message);
                 case LUISHandler.ResponseType.None:
                     return await UnknownHandler(message);
+                case LUISHandler.ResponseType.AccountBalance:
+                    return await BankHandler.HandleBalance(message);
+                case LUISHandler.ResponseType.MakePayment:
+                    return await BankHandler.HandleTransaction(message, LUISResult);
                 default:
                     return message.CreateReply("Error: Unimplemented");
             }

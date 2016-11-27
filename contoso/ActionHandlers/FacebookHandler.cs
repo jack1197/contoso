@@ -36,10 +36,10 @@ namespace contoso.ActionHandlers
             BotData userData = await stateClient.BotState.GetUserDataAsync(message.ChannelId, message.From.Id);
             string oldGUID = userData.GetProperty<string>("GUID");
 
-            LoginEvent loginEvent = await AzureManager.AzureManagerInstance.RetrieveLoginEventFromGUID(oldGUID);
+            LoginEvent loginEvent = await AzureManager.AzureManagerInstance.GetLoginEventByGUID(oldGUID);
             if (loginEvent != null)
             {
-                await AzureManager.AzureManagerInstance.RemoveLoginEvent(loginEvent);
+                await AzureManager.AzureManagerInstance.DeleteLoginEvent(loginEvent);
             }
 
             string GUID = Guid.NewGuid().ToString();
@@ -65,7 +65,7 @@ namespace contoso.ActionHandlers
             //Try to tidy DB if applicible
             try
             {
-                Account account = await AzureManager.AzureManagerInstance.RetrieveAccountFromFacebook(userData.GetProperty<string>("FacebookID"));
+                Account account = await AzureManager.AzureManagerInstance.GetAccountByFacebook(userData.GetProperty<string>("FacebookID"));
                 account.CurrentGUID = null;
                 await AzureManager.AzureManagerInstance.UpdateAccount(account);
             }
@@ -94,9 +94,9 @@ namespace contoso.ActionHandlers
 
         static private async Task StartAuth(string GUID, Activity activity)
         {
-            LoginEvent old = await AzureManager.AzureManagerInstance.RetrieveLoginEventFromGUID(GUID);
+            LoginEvent old = await AzureManager.AzureManagerInstance.GetLoginEventByGUID(GUID);
             if (old != null)
-                await AzureManager.AzureManagerInstance.RemoveLoginEvent(old);
+                await AzureManager.AzureManagerInstance.DeleteLoginEvent(old);
             LoginEvent loginEvent = new LoginEvent();
             loginEvent.ChannelID = activity.ChannelId;
             loginEvent.ConversationID = activity.Conversation.Id;
@@ -104,21 +104,14 @@ namespace contoso.ActionHandlers
             loginEvent.ToID = activity.Recipient.Id;
             loginEvent.FromID = activity.From.Id;
             loginEvent.ServiceUrl = activity.ServiceUrl;
-            await AzureManager.AzureManagerInstance.NewLoginEvent(loginEvent);
+            await AzureManager.AzureManagerInstance.CreateLoginEvent(loginEvent);
         }
 
 
         static private async Task FinishLogin(Activity message, LoginEvent loginEvent)
         {
-            StateClient stateClient = message.GetStateClient();
-            BotData userData = await stateClient.BotState.GetUserDataAsync(message.ChannelId, message.From.Id);
-            userData.SetProperty<bool>("Authorised", true);
-            userData.SetProperty<string>("Name", loginEvent.Name);
-            userData.SetProperty<string>("FacebookToken", loginEvent.FacebookToken);
-            userData.SetProperty<string>("FacebookID", loginEvent.FacebookId);
-            await stateClient.BotState.SetUserDataAsync(message.ChannelId, message.From.Id, userData);
 
-            Account account = await AzureManager.AzureManagerInstance.RetrieveAccountFromFacebook(loginEvent.FacebookId);
+            Account account = await AzureManager.AzureManagerInstance.GetAccountByFacebook(loginEvent.FacebookId);
             Random random = new Random((int)DateTime.Now.Ticks);
 
             //simply for demonstation purposes!!!!!!!
@@ -127,15 +120,29 @@ namespace contoso.ActionHandlers
                 account = new Account
                 {
                     Name = loginEvent.Name,
-                    Balance = 200.00,
+                    Balance = 0,
                     FacebookId = loginEvent.FacebookId,
-                    AccountNumber = $"54-1234-{random.Next(1000000, 9999999)}-00"
+                    AccountNumber = $"541234{random.Next(1000000, 9999999)}000"
                 };
                 await AzureManager.AzureManagerInstance.MakeAccount(account);
+                //update
+                account = await AzureManager.AzureManagerInstance.GetAccountByNumber(account.AccountNumber);
+                //give money
+                Account master = await AzureManager.AzureManagerInstance.GetAccountByNumber(BankHandler.MasterAccount);
+                await AzureManager.AzureManagerInstance.MakeTransaction(200, account, master);
             }
 
+            StateClient stateClient = message.GetStateClient();
+            BotData userData = await stateClient.BotState.GetUserDataAsync(message.ChannelId, message.From.Id);
+            userData.SetProperty<bool>("Authorised", true);
+            userData.SetProperty<string>("Name", loginEvent.Name);
+            userData.SetProperty<string>("FacebookToken", loginEvent.FacebookToken);
+            userData.SetProperty<string>("FacebookID", loginEvent.FacebookId);
+            userData.SetProperty<string>("AccountNumber", account.AccountNumber);
+            await stateClient.BotState.SetUserDataAsync(message.ChannelId, message.From.Id, userData);
+
             account.CurrentGUID = loginEvent.GUID;
-            await AzureManager.AzureManagerInstance.RemoveLoginEvent(loginEvent);
+            await AzureManager.AzureManagerInstance.DeleteLoginEvent(loginEvent);
         }
 
 
@@ -149,7 +156,7 @@ namespace contoso.ActionHandlers
             }
             else
             {
-                LoginEvent loginEvent = await AzureManager.AzureManagerInstance.RetrieveLoginEventFromGUID(userData.GetProperty<string>("GUID"));
+                LoginEvent loginEvent = await AzureManager.AzureManagerInstance.GetLoginEventByGUID(userData.GetProperty<string>("GUID"));
                 if (loginEvent?.FacebookId != null)
                 {
                     await FinishLogin(message, loginEvent);

@@ -138,6 +138,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActionHandlers\BankHandler.cs" />
     <Compile Include="ActionHandlers\ExchangeRateHandler.cs" />
     <Compile Include="ActionHandlers\FacebookHandler.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />

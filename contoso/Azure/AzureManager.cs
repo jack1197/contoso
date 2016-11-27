@@ -35,7 +35,7 @@ namespace contoso
         }
 
 
-        public async Task<Account> RetrieveAccountFromNumber(string AccountNumber)
+        public async Task<Account> GetAccountByNumber(string AccountNumber)
         {
             return (await accountTable
                 .Where(AccountItem => AccountItem.AccountNumber == AccountNumber)
@@ -44,7 +44,7 @@ namespace contoso
         }
 
 
-        public async Task<Account> RetrieveAccountFromFacebook(string FacebookId)
+        public async Task<Account> GetAccountByFacebook(string FacebookId)
         {
             return (await accountTable
                 .Where(AccountItem => AccountItem.FacebookId == FacebookId)
@@ -58,7 +58,7 @@ namespace contoso
         }
 
 
-        public async Task<LoginEvent> RetrieveLoginEventFromGUID(string GUID)
+        public async Task<LoginEvent> GetLoginEventByGUID(string GUID)
         {
             LoginEvent loginEvent = (await loginEventTable
                 .Where(LoginEventItem => LoginEventItem.GUID == GUID)
@@ -67,7 +67,7 @@ namespace contoso
 
             if (loginEvent != null && loginEvent.Expiry < DateTime.Now)
             {
-                await RemoveLoginEvent(loginEvent);
+                await DeleteLoginEvent(loginEvent);
                 loginEvent = null;
             }
 
@@ -75,7 +75,7 @@ namespace contoso
         }
 
 
-        public async Task RemoveLoginEvent(LoginEvent loginEvent)
+        public async Task DeleteLoginEvent(LoginEvent loginEvent)
         {
             await this.loginEventTable.DeleteAsync(loginEvent);
         }
@@ -87,10 +87,38 @@ namespace contoso
         }
 
 
-        public async Task NewLoginEvent(LoginEvent loginEvent)
+        public async Task CreateLoginEvent(LoginEvent loginEvent)
         {
             loginEvent.Expiry = DateTime.Now.AddMinutes(LoginExpiryTime);
             await this.loginEventTable.InsertAsync(loginEvent);
+        }
+
+
+        public async Task<List<Transaction>> GetTransactionsByAccountNumber(string AccountNumber)
+        {
+            return (await transactionTable
+                .Where(TransactionItem => (TransactionItem.From == AccountNumber || TransactionItem.To == AccountNumber) 
+                                            && TransactionItem.Date.AddMonths(1) > DateTime.Now)
+                .OrderByDescending(TransactionItem => TransactionItem.Date)
+                .ToListAsync());
+        }
+
+
+        public async Task MakeTransaction(double amount,  Account To, Account From)
+        {
+            Transaction transaction = new Transaction
+            {
+                From = From.AccountNumber,
+                To = To.AccountNumber,
+                Amount = amount,
+            };
+
+            From.Balance -= amount;
+            To.Balance += amount;
+
+            await this.transactionTable.InsertAsync(transaction);
+            await this.accountTable.UpdateAsync(From);
+            await this.accountTable.UpdateAsync(To);
         }
 
 
