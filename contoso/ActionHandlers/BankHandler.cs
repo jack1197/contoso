@@ -61,7 +61,7 @@ namespace contoso.ActionHandlers
             int count = 0;
             foreach (Transaction transaction in transactions)
             {
-                if (count++ > 10)
+                if (++count > 10)
                 {
                     break;
                 }
