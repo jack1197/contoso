@@ -18,7 +18,6 @@ namespace contoso.ActionHandlers
         {
             public string @base { get; set; }
             public string date { get; set; }
-            //want case-insensitive stings
             private Dictionary<string, double> ratesInternal;
             public Dictionary<string, double> rates
             { 
@@ -28,6 +27,7 @@ namespace contoso.ActionHandlers
                 }
                 set
                 {
+                    //want case-insensitive stings
                     ratesInternal = new Dictionary<string, double>(value, StringComparer.OrdinalIgnoreCase);
                 }
             }
