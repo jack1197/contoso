@@ -56,7 +56,7 @@ namespace contoso.ActionHandlers
         }
 
 
-        private static async Task<double> ExchangeRateFromTo(string To, string From)
+        private static async Task<double> ExchangeRateFromTo(string From, string To)
         {
             HttpClient client = new HttpClient();
             HttpResponseMessage response = await client.GetAsync(string.Format(APIURL, Uri.EscapeDataString(From)));
