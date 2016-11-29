@@ -41,18 +41,33 @@ namespace contoso.ActionHandlers
             {
                 //figure out conversions, if one rate given, try the other one as first nzd, then usd.
                 //ignoring destination/source for simplicity, will report rate both ways
-                List<string> givenRates = LUISResult.parameters.Values.Union(new List<string>{ "NZD", "USD" }, StringComparer.OrdinalIgnoreCase).Take(2).ToList();
+                List<string> givenCodes = RatesFromLUIS(LUISResult).Union(new List<string>{ "NZD", "USD" }, StringComparer.OrdinalIgnoreCase).Take(2).ToList();
                 //exact rates arent neccesarily inverses...
-                double FirstToSecond = await ExchangeRateFromTo(givenRates[0], givenRates[1]);
-                double SecondToFirst = await ExchangeRateFromTo(givenRates[1], givenRates[0]);
+                double FirstToSecond = await ExchangeRateFromTo(givenCodes[0], givenCodes[1]);
+                double SecondToFirst = await ExchangeRateFromTo(givenCodes[1], givenCodes[0]);
                 string reply = string.Format("Exchange rate from {0} to {1} is {2:F4}, and rate from {1} to {0} is {3:F4}", 
-                    givenRates[0].ToUpper(), givenRates[1].ToUpper(), FirstToSecond, SecondToFirst);
+                    givenCodes[0].ToUpper(), givenCodes[1].ToUpper(), FirstToSecond, SecondToFirst);
                 return message.CreateReply(reply);
             }
             catch (KeyNotFoundException)
             {
                 return message.CreateReply("Could not find exchange rate");
             }
+        }
+
+
+        private static List<string> RatesFromLUIS(LUISHandler.LUISQueryResult LUISResult)
+        {
+            List<string> Rates = new List<string>();
+            if (LUISResult.parameters.ContainsKey("SourceRate"))
+            {
+                Rates.Add(LUISResult.parameters["SourceRate"]);
+            }
+            if (LUISResult.parameters.ContainsKey("DestinationRate"))
+            {
+                Rates.Add(LUISResult.parameters["DestinationRate"]);
+            }
+            return Rates;
         }
 
 
