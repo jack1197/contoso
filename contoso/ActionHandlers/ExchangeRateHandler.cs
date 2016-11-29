@@ -45,7 +45,7 @@ namespace contoso.ActionHandlers
                 //exact rates arent neccesarily inverses...
                 double FirstToSecond = await ExchangeRateFromTo(givenCodes[0], givenCodes[1]);
                 double SecondToFirst = await ExchangeRateFromTo(givenCodes[1], givenCodes[0]);
-                string reply = string.Format("Exchange rate from {0} to {1} is {2:F4}, and rate from {1} to {0} is {3:F4}", 
+                string reply = string.Format("Exchange rate from {0} to {1} is {2:F4} (Rate from {1} to {0} is {3:F4})", 
                     givenCodes[0].ToUpper(), givenCodes[1].ToUpper(), FirstToSecond, SecondToFirst);
                 return message.CreateReply(reply);
             }
