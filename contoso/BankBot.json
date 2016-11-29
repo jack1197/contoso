@@ -1699,6 +1699,158 @@
       "text": "thanks for that, bye",
       "intent": "Logout",
       "entities": []
+    },
+    {
+      "text": "exchange rate from usd to rub",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "SourceRate",
+          "startPos": 3,
+          "endPos": 3
+        },
+        {
+          "entity": "DestinationRate",
+          "startPos": 5,
+          "endPos": 5
+        }
+      ]
+    },
+    {
+      "text": "exchange rate to nzd from usd",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "SourceRate",
+          "startPos": 5,
+          "endPos": 5
+        },
+        {
+          "entity": "DestinationRate",
+          "startPos": 3,
+          "endPos": 3
+        }
+      ]
+    },
+    {
+      "text": "send $5 to 54-1337-0000000-00",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 2
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 4,
+          "endPos": 10
+        }
+      ]
+    },
+    {
+      "text": "send 50 dollars to 54-1337-0000000-00",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 2
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 4,
+          "endPos": 10
+        }
+      ]
+    },
+    {
+      "text": "trnasfer $20 to 54-1337-0000000-00",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 1,
+          "endPos": 2
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 4,
+          "endPos": 10
+        }
+      ]
+    },
+    {
+      "text": "who've i paid recently?",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "hey, send 20 dollars to 54-1337-0000000-00",
+      "intent": "MakePayment",
+      "entities": [
+        {
+          "entity": "Money",
+          "startPos": 3,
+          "endPos": 4
+        },
+        {
+          "entity": "AccountNumber",
+          "startPos": 6,
+          "endPos": 12
+        }
+      ]
+    },
+    {
+      "text": "thars a ghost in ye code",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "balance!",
+      "intent": "AccountBalance",
+      "entities": []
+    },
+    {
+      "text": "who've i paid recently",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "https://www.youtube.com/watch?v=dqw4w9wgxcq",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "aah a ghost",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "{0}",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "list my transactions plz",
+      "intent": "TransactionHistory",
+      "entities": []
+    },
+    {
+      "text": "convert 50 usd to eur",
+      "intent": "ExchangeRate",
+      "entities": [
+        {
+          "entity": "SourceRate",
+          "startPos": 2,
+          "endPos": 2
+        },
+        {
+          "entity": "DestinationRate",
+          "startPos": 4,
+          "endPos": 4
+        }
+      ]
     }
   ]
 }
