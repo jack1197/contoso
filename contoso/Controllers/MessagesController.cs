@@ -95,7 +95,7 @@ namespace contoso
         {
             return message.CreateReply( "I'm sorry, I couldn't understand you. I can help with " +
                                         "a range of activities, these are: Finding exchange rates, " +
-                                        "checking account information (e.g. Balance or transactions), and" + 
+                                        "checking account information (e.g. Balance or transactions), and " + 
                                         "making transactions to another account");
         }
 
