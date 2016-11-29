@@ -69,6 +69,10 @@ namespace contoso
         //uses LUIS to understand user query inteligently, and respond appropriately
         private async Task<Activity> NaturalInteractionHandler(Activity message)
         {
+            if ((message.Text.Trim().ToLower() ?? "") == "")
+            {
+                return message.CreateReply("Error: Message type unsupported");
+            }
             LUISHandler.LUISQueryResult LUISResult = await LUISHandler.HandleQuery(message.Text);
             switch (LUISResult.responseType)
             {
